@@ -1,0 +1,57 @@
+spring:
+  application:
+    name: lata-velha-billing-service
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5433/lata_velha_billing}
+    username: ${SPRING_DATASOURCE_USERNAME:admin}
+    password: ${SPRING_DATASOURCE_PASSWORD:admin123}
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:validate}
+
+  flyway:
+    enabled: ${SPRING_FLYWAY_ENABLED:true}
+    locations: classpath:db/migration
+
+# Mesmo motivo do app: o API Gateway termina o https e repassa http pro ALB
+# interno com X-Forwarded-Proto — sem isso as URLs geradas saem como http://.
+server:
+  port: ${SERVER_PORT:8081}
+  forward-headers-strategy: framework
+
+mercadopago:
+  base-url: ${MERCADOPAGO_BASE_URL:https://api.mercadopago.com}
+  # Access token da aplicação no painel do Mercado Pago (TEST-... para sandbox).
+  access-token: ${MERCADOPAGO_ACCESS_TOKEN:}
+  # URL pública (API Gateway) que o Mercado Pago chama em cada mudança de
+  # status. Vazio = usa a URL configurada no painel "Webhooks" da aplicação.
+  notification-url: ${MERCADOPAGO_NOTIFICATION_URL:}
+  # Chave secreta gerada no painel "Webhooks". Usada para validar o header
+  # x-signature. Vazio = validação desligada (somente para desenvolvimento).
+  webhook-secret: ${MERCADOPAGO_WEBHOOK_SECRET:}
+  connect-timeout: ${MERCADOPAGO_CONNECT_TIMEOUT:5s}
+  read-timeout: ${MERCADOPAGO_READ_TIMEOUT:15s}
+  back-urls:
+    success: ${MERCADOPAGO_BACK_URL_SUCCESS:}
+    failure: ${MERCADOPAGO_BACK_URL_FAILURE:}
+    pending: ${MERCADOPAGO_BACK_URL_PENDING:}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: never
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
