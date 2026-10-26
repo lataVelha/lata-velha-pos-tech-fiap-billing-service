@@ -53,9 +53,10 @@ public class MercadoPagoClient implements MercadoPagoGateway {
                     .retrieve()
                     .body(PreferenceResponse.class);
 
-            if (response == null || response.id() == null || response.initPoint() == null)
+            var checkoutUrl = response == null ? null : checkoutUrl(response);
+            if (response == null || response.id() == null || checkoutUrl == null)
                 throw new IntegracaoPagamentoException("Resposta inválida ao criar preferência no Mercado Pago", null);
-            return new PreferenciaCriada(response.id(), response.initPoint());
+            return new PreferenciaCriada(response.id(), checkoutUrl);
         } catch (RestClientException e) {
             throw new IntegracaoPagamentoException("Falha ao criar preferência no Mercado Pago", e);
         }
@@ -75,6 +76,15 @@ public class MercadoPagoClient implements MercadoPagoGateway {
         } catch (RestClientException e) {
             throw new IntegracaoPagamentoException("Falha ao consultar payment " + paymentId + " no Mercado Pago", e);
         }
+    }
+
+    /**
+     * Com credenciais de teste (TEST-...) o checkout é o do sandbox — o
+     * init_point de produção não aceita os cartões/usuários de teste.
+     */
+    private String checkoutUrl(PreferenceResponse response) {
+        var teste = properties.accessToken() != null && properties.accessToken().startsWith("TEST-");
+        return teste && !isBlank(response.sandboxInitPoint()) ? response.sandboxInitPoint() : response.initPoint();
     }
 
     private BackUrlsRequest backUrls() {
@@ -129,7 +139,8 @@ public class MercadoPagoClient implements MercadoPagoGateway {
     @JsonIgnoreProperties(ignoreUnknown = true)
     record PreferenceResponse(
             String id,
-            @JsonProperty("init_point") String initPoint) {
+            @JsonProperty("init_point") String initPoint,
+            @JsonProperty("sandbox_init_point") String sandboxInitPoint) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)

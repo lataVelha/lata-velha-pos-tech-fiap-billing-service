@@ -1,0 +1,17 @@
+# Copie para terraform.tfvars (não versionado) e preencha.
+
+# Painel do Mercado Pago → sua aplicação → Credenciais (de produção ou de teste)
+mercadopago_access_token = "APP_USR-..."
+
+# Painel → Webhooks → chave secreta. Deixe vazio no 1º deploy: a chave só é
+# gerada depois de cadastrar a URL (output webhook_url). Depois preencha e
+# rode o apply de novo.
+mercadopago_webhook_secret = ""
+
+# Opcionais — para onde o comprador volta após o checkout
+# mercadopago_back_url_success = "https://..."
+# mercadopago_back_url_failure = "https://..."
+# mercadopago_back_url_pending = "https://..."
+
+# As variáveis abaixo são injetadas automaticamente pelo apply.sh — não coloque aqui:
+# cluster_endpoint, cluster_ca_data, cluster_name, docker_image

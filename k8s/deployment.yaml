@@ -1,0 +1,92 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lata-velha-billing
+  namespace: lata-velha-billing
+  labels:
+    app: lata-velha-billing
+spec:
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: lata-velha-billing
+  template:
+    metadata:
+      labels:
+        app: lata-velha-billing
+      annotations:
+        # envFrom não recarrega sozinho: mudou ConfigMap/Secret (ex.: colocou o
+        # webhook secret depois do 1º deploy) → hash muda → rollout dos pods.
+        checksum/config: "${config_checksum}"
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      # Espalha as réplicas entre nodes diferentes (melhor esforço)
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app: lata-velha-billing
+                topologyKey: kubernetes.io/hostname
+      containers:
+        - name: billing
+          image: "${docker_image}"
+          imagePullPolicy: Always
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+          ports:
+            - name: http
+              containerPort: 8081
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: lata-velha-billing-config
+            - secretRef:
+                name: lata-velha-billing-secret
+          # /tmp gravável para o work dir do Tomcat (FS raiz é read-only)
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+          # Aguarda o Spring Boot subir (até ~150s) antes das demais probes
+          startupProbe:
+            httpGet:
+              path: /actuator/health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            failureThreshold: 30
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: http
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+      terminationGracePeriodSeconds: 60
+      volumes:
+        - name: tmp
+          emptyDir: {}

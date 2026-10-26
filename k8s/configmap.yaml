@@ -1,0 +1,15 @@
+# Valores entre chaves preenchidos pelo Terraform (templatefile).
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: lata-velha-billing-config
+  namespace: lata-velha-billing
+data:
+  SPRING_JPA_HIBERNATE_DDL_AUTO: "validate"
+  SPRING_FLYWAY_ENABLED: "true"
+  # URL pública do webhook (API Gateway do próprio billing-service). Vai em
+  # cada preferência como notification_url.
+  MERCADOPAGO_NOTIFICATION_URL: "${notification_url}"
+  MERCADOPAGO_BACK_URL_SUCCESS: "${back_url_success}"
+  MERCADOPAGO_BACK_URL_FAILURE: "${back_url_failure}"
+  MERCADOPAGO_BACK_URL_PENDING: "${back_url_pending}"

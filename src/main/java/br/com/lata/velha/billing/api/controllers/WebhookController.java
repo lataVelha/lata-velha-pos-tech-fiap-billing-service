@@ -5,6 +5,7 @@ import br.com.lata.velha.billing.application.use_cases.ProcessarNotificacaoUseCa
 import br.com.lata.velha.billing.infrastructure.mercadopago.WebhookSignatureValidator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,14 +36,18 @@ public class WebhookController {
             @RequestParam(name = "type", required = false) String typeParam,
             @RequestHeader(name = "x-signature", required = false) String xSignature,
             @RequestHeader(name = "x-request-id", required = false) String xRequestId,
-            @RequestBody(required = false) NotificacaoMercadoPagoRequest body) {
+            @RequestBody(required = false) NotificacaoMercadoPagoRequest body,
+            HttpServletRequest request) {
 
         var dataId = dataIdParam != null ? dataIdParam
                 : body != null && body.data() != null ? body.data().id() : null;
         var type = typeParam != null ? typeParam : body != null ? body.type() : null;
 
         if (!signatureValidator.valido(xSignature, xRequestId, dataId)) {
-            logger.warn("Webhook com assinatura inválida - dataId={}, requestId={}", dataId, xRequestId);
+            // ts/v1 não são segredo (o HMAC não revela a chave) — logados pra dar pra
+            // conferir a assinatura offline quando a validação falha.
+            logger.warn("Webhook com assinatura inválida - dataId={}, requestId={}, xSignature={}, query={}",
+                    dataId, xRequestId, xSignature, request.getQueryString());
             return ResponseEntity.status(401).build();
         }
 

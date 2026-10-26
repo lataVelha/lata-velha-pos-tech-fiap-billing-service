@@ -66,6 +66,40 @@ class MercadoPagoClientTest {
     }
 
     @Test
+    void comTokenDeTesteUsaCheckoutDoSandbox() {
+        var pagamento = Pagamento.create(42L, BigDecimal.TEN, "x", null);
+        server.expect(requestTo("https://api.mp.test/checkout/preferences"))
+                .andRespond(withSuccess("""
+                        {"id":"123-abc",
+                         "init_point":"https://www.mercadopago.com.br/checkout/v1/redirect?pref_id=123-abc",
+                         "sandbox_init_point":"https://sandbox.mercadopago.com.br/checkout/v1/redirect?pref_id=123-abc"}
+                        """, MediaType.APPLICATION_JSON));
+
+        var preferencia = client.criarPreferencia(pagamento);
+
+        assertThat(preferencia.checkoutUrl()).startsWith("https://sandbox.mercadopago.com.br/");
+    }
+
+    @Test
+    void comTokenDeProducaoUsaInitPoint() {
+        var properties = new MercadoPagoProperties("https://api.mp.test", "APP_USR-token",
+                null, "s", Duration.ofSeconds(1), Duration.ofSeconds(1), null);
+        var builder = RestClient.builder().baseUrl(properties.baseUrl());
+        var producao = MockRestServiceServer.bindTo(builder).build();
+        var clientProducao = new MercadoPagoClient(builder.build(), properties);
+        producao.expect(requestTo("https://api.mp.test/checkout/preferences"))
+                .andRespond(withSuccess("""
+                        {"id":"123-abc",
+                         "init_point":"https://www.mercadopago.com.br/checkout/v1/redirect?pref_id=123-abc",
+                         "sandbox_init_point":"https://sandbox.mercadopago.com.br/checkout/v1/redirect?pref_id=123-abc"}
+                        """, MediaType.APPLICATION_JSON));
+
+        var preferencia = clientProducao.criarPreferencia(Pagamento.create(42L, BigDecimal.TEN, "x", null));
+
+        assertThat(preferencia.checkoutUrl()).startsWith("https://www.mercadopago.com.br/");
+    }
+
+    @Test
     void erroAoCriarPreferenciaViraIntegracaoException() {
         var pagamento = Pagamento.create(42L, BigDecimal.TEN, "x", null);
         server.expect(requestTo("https://api.mp.test/checkout/preferences"))

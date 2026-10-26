@@ -69,6 +69,43 @@ docker compose up --build
 Para receber webhooks localmente, exponha a porta 8081 (ex.: `ngrok http 8081`) e use
 a URL gerada + `/pagamentos/webhook` em `MERCADOPAGO_NOTIFICATION_URL`.
 
+## Deploy na AWS
+
+O billing é autocontido: banco (RDS próprio), ECR, entrada pública e manifests
+Kubernetes ficam neste repo (`terraform/` e `k8s/`). O único pré-requisito é o
+cluster EKS `lata-velha-eks` (repo `infra`) — VPC, subnets, SG dos nodes e ASG são
+lidos direto do cluster, sem `terraform_remote_state` de outro repo.
+Se o cluster ainda não existir, o `apply.sh` sobe sozinho o bootstrap do `infra`
+(`../infra/terraform/apply.sh --bootstrap-only`, ou o caminho em `INFRA_APPLY`) e
+espera o cluster e o node group ficarem `ACTIVE`.
+
+```
+Mercado Pago ── HTTPS ──► API Gateway (só POST /pagamentos/webhook)
+                            └─ VPC Link ─► NLB interno ─► NodePort 30081 ─► pods
+app / os-service ── http://lata-velha-billing.lata-velha-billing.svc.cluster.local ──► pods
+```
+
+`POST/GET /pagamentos` **não** são publicados no gateway (ele não tem authorizer):
+quem cria cobrança chama o billing por dentro do cluster.
+
+```bash
+cd terraform
+cp terraform.tfvars.example terraform.tfvars   # access token do Mercado Pago
+./apply.sh                                     # testes → ECR + imagem → RDS/NLB/Gateway/K8s
+```
+
+### Configurando o webhook
+
+1. Rode o `./apply.sh` e copie o `webhook_url` impresso no final
+   (`https://<id>.execute-api.<região>.amazonaws.com/pagamentos/webhook`).
+   Ele já vai como `notification_url` em cada preferência.
+2. Painel do Mercado Pago → **Suas integrações → aplicação → Webhooks → Configurar
+   notificações** → cole a URL em **Modo produção** e marque o evento **Pagamentos**.
+3. Copie a **assinatura secreta** gerada para `mercadopago_webhook_secret` no
+   `terraform.tfvars` e rode `./apply.sh --skip-tests` de novo — os pods reiniciam
+   com a validação do `x-signature` ligada.
+4. Teste com **Simular notificação** no painel (401 = secret errado).
+
 ## Testes
 
 ```bash

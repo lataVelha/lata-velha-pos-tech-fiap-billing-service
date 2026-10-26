@@ -1,0 +1,20 @@
+# NodePort (30081) — destino do tráfego encaminhado pelo NLB interno (que
+# recebe do API Gateway via VPC Link). Dentro do cluster, os outros serviços
+# chamam direto: http://lata-velha-billing.lata-velha-billing.svc.cluster.local
+apiVersion: v1
+kind: Service
+metadata:
+  name: lata-velha-billing
+  namespace: lata-velha-billing
+  labels:
+    app: lata-velha-billing
+spec:
+  selector:
+    app: lata-velha-billing
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8081
+      nodePort: ${node_port}
+      protocol: TCP
+  type: NodePort

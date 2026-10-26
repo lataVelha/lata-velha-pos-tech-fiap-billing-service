@@ -1,0 +1,13 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: lata-velha-billing
+  namespace: lata-velha-billing
+  labels:
+    app: lata-velha-billing
+spec:
+  # No drain/upgrade, no máx. 1 pod sai por vez — o webhook nunca cai inteiro
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: lata-velha-billing
