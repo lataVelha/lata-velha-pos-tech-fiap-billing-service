@@ -6,12 +6,15 @@ import br.com.lata.velha.billing.application.use_cases.ProcessarNotificacaoUseCa
 import br.com.lata.velha.billing.domain.entities.Pagamento;
 import br.com.lata.velha.billing.domain.enums.StatusPagamento;
 import br.com.lata.velha.billing.domain.repositories.PagamentoRepository;
+import br.com.lata.velha.shared.application.gateways.EventPublisher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.UUID;
+
+import br.com.lata.velha.billing.domain.events.PaymentDoneEvent;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -21,13 +24,15 @@ class ProcessarNotificacaoUseCaseTest {
 
     private PagamentoRepository repository;
     private MercadoPagoGateway mercadoPago;
+    private EventPublisher eventPublisher;
     private ProcessarNotificacaoUseCase useCase;
 
     @BeforeEach
     void setUp() {
         repository = mock(PagamentoRepository.class);
         mercadoPago = mock(MercadoPagoGateway.class);
-        useCase = new ProcessarNotificacaoUseCase(repository, mercadoPago);
+        eventPublisher = mock(EventPublisher.class);
+        useCase = new ProcessarNotificacaoUseCase(repository, mercadoPago, eventPublisher);
     }
 
     @Test
@@ -42,6 +47,7 @@ class ProcessarNotificacaoUseCaseTest {
         assertThat(pagamento.getStatus()).isEqualTo(StatusPagamento.APROVADO);
         assertThat(pagamento.getMercadoPagoPaymentId()).isEqualTo(55L);
         verify(repository).salvar(pagamento);
+        verify(eventPublisher).publish(any(PaymentDoneEvent.class));
     }
 
     @Test

@@ -2,6 +2,25 @@ spring:
   application:
     name: lata-velha-billing-service
 
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+    virtual-host: ${RABBITMQ_VIRTUAL_HOST:/}
+
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5433/lata_velha_billing}
     username: ${SPRING_DATASOURCE_USERNAME:admin}
@@ -49,9 +68,25 @@ management:
       probes:
         enabled: true
       show-details: never
+  health:
+    mail:
+      enabled: false
 
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
   api-docs:
     path: /v3/api-docs
+
+messaging:
+  provider: ${MESSAGING_PROVIDER:rabbitmq}
+  rabbitmq:
+    exchange: ${RABBITMQ_EXCHANGE:lata-velha.events}
+    queue: ${RABBITMQ_QUEUE:lata-velha-billing-service.events}
+
+inventory-service:
+  base-url: ${INVENTORY_SERVICE_BASE_URL:http://localhost:8082}
+
+billing:
+  mail:
+    from: ${MAIL_FROM:noreply@latavelha.com.br}

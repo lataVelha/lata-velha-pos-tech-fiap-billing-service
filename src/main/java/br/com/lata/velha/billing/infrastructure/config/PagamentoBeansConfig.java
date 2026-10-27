@@ -8,6 +8,7 @@ import br.com.lata.velha.billing.domain.repositories.PagamentoRepository;
 import br.com.lata.velha.billing.infrastructure.mercadopago.MercadoPagoClient;
 import br.com.lata.velha.billing.infrastructure.mercadopago.MercadoPagoProperties;
 import br.com.lata.velha.billing.infrastructure.mercadopago.WebhookSignatureValidator;
+import br.com.lata.velha.shared.application.gateways.EventPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.client.ClientHttpRequestFactories;
@@ -61,7 +62,9 @@ public class PagamentoBeansConfig {
     }
 
     @Bean
-    public ProcessarNotificacaoUseCase processarNotificacaoUseCase(PagamentoRepository repository, MercadoPagoGateway mercadoPago) {
-        return new ProcessarNotificacaoUseCase(repository, mercadoPago);
+    public ProcessarNotificacaoUseCase processarNotificacaoUseCase(PagamentoRepository repository,
+                                                                    MercadoPagoGateway mercadoPago,
+                                                                    EventPublisher eventPublisher) {
+        return new ProcessarNotificacaoUseCase(repository, mercadoPago, eventPublisher);
     }
 }

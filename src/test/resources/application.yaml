@@ -6,6 +6,17 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration
+      - org.springframework.boot.autoconfigure.mail.MailSenderAutoConfiguration
+      - org.springframework.boot.autoconfigure.mail.MailSenderValidatorAutoConfiguration
+
+messaging:
+  provider: noop
+
+inventory-service:
+  base-url: http://localhost:9999
 
 mercadopago:
   base-url: https://api.mercadopago.test

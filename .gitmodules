@@ -1,0 +1,3 @@
+[submodule "shared-kernel"]
+	path = shared-kernel
+	url = https://github.com/lataVelha/lata-velha-pos-tech-fiap-shared.git

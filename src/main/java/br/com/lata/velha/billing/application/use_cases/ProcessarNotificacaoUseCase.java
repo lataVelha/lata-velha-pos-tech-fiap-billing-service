@@ -2,7 +2,9 @@ package br.com.lata.velha.billing.application.use_cases;
 
 import br.com.lata.velha.billing.application.gateways.MercadoPagoGateway;
 import br.com.lata.velha.billing.domain.enums.StatusPagamento;
+import br.com.lata.velha.billing.domain.events.PaymentDoneEvent;
 import br.com.lata.velha.billing.domain.repositories.PagamentoRepository;
+import br.com.lata.velha.shared.application.gateways.EventPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,10 +16,13 @@ public class ProcessarNotificacaoUseCase {
 
     private final PagamentoRepository repository;
     private final MercadoPagoGateway mercadoPago;
+    private final EventPublisher eventPublisher;
 
-    public ProcessarNotificacaoUseCase(PagamentoRepository repository, MercadoPagoGateway mercadoPago) {
+    public ProcessarNotificacaoUseCase(PagamentoRepository repository, MercadoPagoGateway mercadoPago,
+                                       EventPublisher eventPublisher) {
         this.repository = repository;
         this.mercadoPago = mercadoPago;
+        this.eventPublisher = eventPublisher;
     }
 
     /**
@@ -50,6 +55,10 @@ public class ProcessarNotificacaoUseCase {
             repository.salvar(pagamento);
             logger.info("Status do pagamento atualizado - pagamentoId={}, paymentId={}, {} -> {}",
                     pagamentoId, paymentId, anterior, pagamento.getStatus());
+            if (pagamento.isAprovado()) {
+                eventPublisher.publish(new PaymentDoneEvent(pagamento.getOrdemServicoId()));
+                logger.info("PaymentDone publicado - osId={}, pagamentoId={}", pagamento.getOrdemServicoId(), pagamentoId);
+            }
         } else {
             logger.info("Notificação sem mudança de status - pagamentoId={}, paymentId={}, statusAtual={}, statusMercadoPago={}",
                     pagamentoId, paymentId, anterior, novoStatus);

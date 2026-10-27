@@ -2,6 +2,7 @@ package br.com.lata.velha.billing.api.handlers;
 
 import br.com.lata.velha.billing.domain.exceptions.DomainValidationException;
 import br.com.lata.velha.billing.domain.exceptions.IntegracaoPagamentoException;
+import br.com.lata.velha.billing.domain.exceptions.OrcamentoNotFoundException;
 import br.com.lata.velha.billing.domain.exceptions.PagamentoJaAprovadoException;
 import br.com.lata.velha.billing.domain.exceptions.PagamentoNotFoundException;
 import org.slf4j.Logger;
@@ -22,6 +23,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(PagamentoNotFoundException.class)
     public ProblemDetail notFound(PagamentoNotFoundException e) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, e.getMessage());
+    }
+
+    @ExceptionHandler(OrcamentoNotFoundException.class)
+    public ProblemDetail orcamentoNotFound(OrcamentoNotFoundException e) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, e.getMessage());
     }
 
