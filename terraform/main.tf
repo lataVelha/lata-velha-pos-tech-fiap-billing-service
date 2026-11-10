@@ -28,6 +28,18 @@ data "aws_vpc" "this" {
   id = local.vpc_id
 }
 
+# Barramento SNS/SQS (Epic 13) — topic ARN e a fila do billing.
+data "terraform_remote_state" "messaging" {
+  backend = "s3"
+  config = {
+    bucket = "lata-velha-tfstate-${data.aws_caller_identity.current.account_id}"
+    key    = var.messaging_state_key
+    region = var.region
+  }
+}
+
+data "aws_caller_identity" "current" {}
+
 resource "aws_ecr_repository" "billing" {
   name                 = local.name
   image_tag_mutability = "MUTABLE"

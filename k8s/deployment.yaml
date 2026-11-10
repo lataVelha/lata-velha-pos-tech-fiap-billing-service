@@ -18,11 +18,16 @@ spec:
     metadata:
       labels:
         app: lata-velha-billing
+        # O billing usa o OTel Spring Boot Starter (SDK próprio). Sem este
+        # label no POD, o Admission Controller injetaria o Java Agent e
+        # duplicaria spans.
+        admission.datadoghq.com/enabled: "false"
       annotations:
         # envFrom não recarrega sozinho: mudou ConfigMap/Secret (ex.: colocou o
         # webhook secret depois do 1º deploy) → hash muda → rollout dos pods.
         checksum/config: "${config_checksum}"
     spec:
+      serviceAccountName: lata-velha-billing
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
@@ -53,6 +58,19 @@ spec:
                 name: lata-velha-billing-config
             - secretRef:
                 name: lata-velha-billing-secret
+          env:
+            - name: HOST_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "http://$(HOST_IP):4318"
+            - name: OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
+              value: "http://$(HOST_IP):4318/v1/traces"
+            - name: OTEL_EXPORTER_OTLP_METRICS_ENDPOINT
+              value: "http://$(HOST_IP):4318/v1/metrics"
+            - name: OTEL_EXPORTER_OTLP_LOGS_ENDPOINT
+              value: "http://$(HOST_IP):4318/v1/logs"
           # /tmp gravável para o work dir do Tomcat (FS raiz é read-only)
           volumeMounts:
             - name: tmp

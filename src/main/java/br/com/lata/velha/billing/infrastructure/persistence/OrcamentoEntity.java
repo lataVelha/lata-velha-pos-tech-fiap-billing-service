@@ -1,11 +1,13 @@
 package br.com.lata.velha.billing.infrastructure.persistence;
 
 import br.com.lata.velha.billing.domain.entities.Orcamento;
+import br.com.lata.velha.billing.domain.entities.OrcamentoItem;
 import br.com.lata.velha.billing.domain.enums.StatusOrcamento;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -24,6 +26,10 @@ public class OrcamentoEntity {
     @Column(name = "email_cliente")
     private String emailCliente;
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "orcamento_item", joinColumns = @JoinColumn(name = "orcamento_id"))
+    private List<OrcamentoItemEmbeddable> itens;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private StatusOrcamento status;
@@ -40,6 +46,7 @@ public class OrcamentoEntity {
         entity.ordemServicoId = orcamento.getOrdemServicoId();
         entity.valorTotal = orcamento.getValorTotal();
         entity.emailCliente = orcamento.getEmailCliente();
+        entity.itens = orcamento.getItens().stream().map(OrcamentoItemEmbeddable::from).toList();
         entity.status = orcamento.getStatus();
         entity.criadoEm = orcamento.getCriadoEm();
         entity.atualizadoEm = orcamento.getAtualizadoEm();
@@ -47,6 +54,10 @@ public class OrcamentoEntity {
     }
 
     public Orcamento toDomain() {
-        return new Orcamento(id, ordemServicoId, valorTotal, emailCliente, status, criadoEm, atualizadoEm);
+        var domainItens = itens == null
+                ? List.<OrcamentoItem>of()
+                : itens.stream().map(OrcamentoItemEmbeddable::toDomain).toList();
+        return new Orcamento(id, ordemServicoId, valorTotal, emailCliente, domainItens,
+                status, criadoEm, atualizadoEm);
     }
 }

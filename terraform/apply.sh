@@ -152,6 +152,9 @@ export TF_VAR_region="$REGION"
 export TF_VAR_cluster_name="$CLUSTER_NAME"
 export TF_VAR_cluster_endpoint=$(aws eks describe-cluster --name "$CLUSTER_NAME" --region "$REGION" --query 'cluster.endpoint' --output text)
 export TF_VAR_cluster_ca_data=$(aws eks describe-cluster --name "$CLUSTER_NAME" --region "$REGION" --query 'cluster.certificateAuthority.data' --output text)
+# Datadog (opcional): alimenta o OTEL_EXPORTER_OTLP_HEADERS/DD_API_KEY do Secret.
+export TF_VAR_dd_api_key="${TF_VAR_dd_api_key:-${DD_API_KEY:-}}"
+export TF_VAR_service_version="$(git -C "$PROJECT_ROOT" rev-parse --short HEAD 2>/dev/null || echo 0.0.1)"
 
 terraform -chdir="$SCRIPT_DIR" init -reconfigure \
   -backend-config="bucket=${BUCKET}" \
@@ -160,8 +163,12 @@ terraform -chdir="$SCRIPT_DIR" init -reconfigure \
 if $DESTROY; then
   echo ""
   echo "${C_BLUE}==> Destruindo recursos do billing...${C_RESET}"
-  # docker_image é obrigatória, mas não importa pro destroy
-  TF_VAR_docker_image="destroy" terraform -chdir="$SCRIPT_DIR" destroy $AUTO
+  # docker_image é obrigatória, mas não importa pro destroy; o access token
+  # tem validação de não-vazio, então vai um dummy explícito.
+  TF_VAR_docker_image="destroy" \
+  TF_VAR_mercadopago_access_token="destroy" \
+  TF_VAR_dd_api_key="destroy" \
+    terraform -chdir="$SCRIPT_DIR" destroy $AUTO
   echo ""
   echo "${C_GREEN}✓ Billing destruído.${C_RESET}"
   exit 0

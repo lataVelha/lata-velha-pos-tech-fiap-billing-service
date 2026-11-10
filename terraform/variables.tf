@@ -49,6 +49,25 @@ variable "node_port" {
   default     = 30081
 }
 
+variable "messaging_state_key" {
+  description = "Chave do state do infra messaging, de onde vêm o topic ARN e a fila do billing"
+  type        = string
+  default     = "lata-velha/infra-messaging/terraform.tfstate"
+}
+
+variable "dd_api_key" {
+  description = "Datadog API key para OTLP ingest (vazio = exportação desabilitada)"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "service_version" {
+  description = "SHA/tag da imagem — vira a tag service.version nos spans"
+  type        = string
+  default     = "0.0.1"
+}
+
 variable "docker_image" {
   description = "Imagem ECR do billing (definida pelo apply.sh/pipeline apos o build/push)"
   type        = string

@@ -59,6 +59,9 @@ mercadopago:
     pending: ${MERCADOPAGO_BACK_URL_PENDING:}
 
 management:
+  tracing:
+    sampling:
+      probability: 1.0
   endpoints:
     web:
       exposure:
@@ -83,6 +86,11 @@ messaging:
   rabbitmq:
     exchange: ${RABBITMQ_EXCHANGE:lata-velha.events}
     queue: ${RABBITMQ_QUEUE:lata-velha-billing-service.events}
+  sqs:
+    region: ${MESSAGING_SQS_REGION:us-east-1}
+    topic-arn: ${MESSAGING_SQS_TOPIC_ARN:}
+    queue-url: ${MESSAGING_SQS_QUEUE_URL:}
+    wait-time-seconds: ${MESSAGING_SQS_WAIT_TIME_SECONDS:20}
 
 inventory-service:
   base-url: ${INVENTORY_SERVICE_BASE_URL:http://localhost:8082}
@@ -90,3 +98,58 @@ inventory-service:
 billing:
   mail:
     from: ${MAIL_FROM:noreply@latavelha.com.br}
+
+otel:
+  service:
+    name: ${OTEL_SERVICE_NAME:${spring.application.name}}
+  resource:
+    attributes:
+      service.name: ${OTEL_SERVICE_NAME:${spring.application.name}}
+      deployment.environment: ${DEPLOYMENT_ENVIRONMENT_NAME:local}
+      deployment.environment.name: ${DEPLOYMENT_ENVIRONMENT_NAME:local}
+      service.version: ${SERVICE_VERSION:0.0.1}
+      service.instance.id: ${HOSTNAME:unknown}
+      host.name: ${HOSTNAME:unknown}
+  exporter:
+    otlp:
+      enabled: ${OTEL_EXPORTER_OTLP_ENABLED:true}
+      protocol: ${OTEL_EXPORTER_OTLP_PROTOCOL:http/protobuf}
+      endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:https://otlp.us5.datadoghq.com}
+      timeout: ${OTEL_EXPORTER_OTLP_TIMEOUT:30000}
+      retry:
+        enabled: true
+        max-attempts: ${OTEL_EXPORTER_RETRY_MAX_ATTEMPTS:5}
+        initial-backoff: ${OTEL_EXPORTER_RETRY_INITIAL_BACKOFF:1000ms}
+        max-backoff: ${OTEL_EXPORTER_RETRY_MAX_BACKOFF:10000ms}
+        backoff-multiplier: ${OTEL_EXPORTER_RETRY_BACKOFF_MULTIPLIER:2.0}
+      traces:
+        endpoint: ${OTEL_EXPORTER_OTLP_TRACES_ENDPOINT:https://otlp.us5.datadoghq.com/v1/traces}
+      metrics:
+        endpoint: ${OTEL_EXPORTER_OTLP_METRICS_ENDPOINT:https://otlp.us5.datadoghq.com/v1/metrics}
+        temporality-preference: ${OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE:delta}
+      logs:
+        endpoint: ${OTEL_EXPORTER_OTLP_LOGS_ENDPOINT:https://otlp.us5.datadoghq.com/v1/logs}
+      headers:
+        dd-api-key: ${DD_API_KEY:}
+  instrumentation:
+    common-endpoint:
+      capture-request-headers: true
+      capture-response-headers: true
+    logback-appender:
+      enabled: true
+      experimental:
+        capture-mdc-attributes: '*'
+    spring-webmvc:
+      enabled: true
+      experimental:
+        capture-request-parameters: true
+    spring-webflux:
+      enabled: true
+    spring-data:
+      enabled: true
+    jdbc:
+      enabled: true
+    log4j-appender:
+      enabled: false
+    java-util-logging:
+      enabled: false

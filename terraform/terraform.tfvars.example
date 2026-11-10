@@ -13,5 +13,8 @@ mercadopago_webhook_secret = ""
 # mercadopago_back_url_failure = "https://..."
 # mercadopago_back_url_pending = "https://..."
 
+# Datadog (opcional): prefira exportar TF_VAR_dd_api_key/DD_API_KEY no ambiente.
+# dd_api_key = ""
+
 # As variáveis abaixo são injetadas automaticamente pelo apply.sh — não coloque aqui:
 # cluster_endpoint, cluster_ca_data, cluster_name, docker_image
