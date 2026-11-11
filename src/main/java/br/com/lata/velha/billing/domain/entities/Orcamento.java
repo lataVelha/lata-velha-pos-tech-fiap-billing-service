@@ -5,6 +5,7 @@ import br.com.lata.velha.billing.domain.exceptions.DomainValidationException;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 public final class Orcamento {
@@ -13,22 +14,26 @@ public final class Orcamento {
     private final Long ordemServicoId;
     private final BigDecimal valorTotal;
     private final String emailCliente;
+    private final List<OrcamentoItem> itens;
     private StatusOrcamento status;
     private final LocalDateTime criadoEm;
     private LocalDateTime atualizadoEm;
 
     public Orcamento(UUID id, Long ordemServicoId, BigDecimal valorTotal, String emailCliente,
-                     StatusOrcamento status, LocalDateTime criadoEm, LocalDateTime atualizadoEm) {
+                     List<OrcamentoItem> itens, StatusOrcamento status,
+                     LocalDateTime criadoEm, LocalDateTime atualizadoEm) {
         this.id = id;
         this.ordemServicoId = ordemServicoId;
         this.valorTotal = valorTotal;
         this.emailCliente = emailCliente;
+        this.itens = itens == null ? List.of() : List.copyOf(itens);
         this.status = status;
         this.criadoEm = criadoEm;
         this.atualizadoEm = atualizadoEm;
     }
 
-    public static Orcamento create(Long ordemServicoId, BigDecimal valorTotal, String emailCliente) {
+    public static Orcamento create(Long ordemServicoId, BigDecimal valorTotal, String emailCliente,
+                                   List<OrcamentoItem> itens) {
         if (ordemServicoId == null || ordemServicoId <= 0)
             throw new DomainValidationException("Ordem de serviço inválida");
         if (valorTotal == null || valorTotal.compareTo(BigDecimal.ZERO) < 0)
@@ -36,7 +41,7 @@ public final class Orcamento {
 
         var agora = LocalDateTime.now();
         return new Orcamento(UUID.randomUUID(), ordemServicoId, valorTotal, emailCliente,
-                StatusOrcamento.PENDENTE, agora, agora);
+                itens, StatusOrcamento.PENDENTE, agora, agora);
     }
 
     public void aprovar() {
@@ -60,6 +65,7 @@ public final class Orcamento {
     public Long getOrdemServicoId() { return ordemServicoId; }
     public BigDecimal getValorTotal() { return valorTotal; }
     public String getEmailCliente() { return emailCliente; }
+    public List<OrcamentoItem> getItens() { return itens; }
     public StatusOrcamento getStatus() { return status; }
     public LocalDateTime getCriadoEm() { return criadoEm; }
     public LocalDateTime getAtualizadoEm() { return atualizadoEm; }

@@ -26,7 +26,13 @@ public class AprovarOrcamentoUseCase {
         orcamento.aprovar();
         orcamentoRepository.salvar(orcamento);
 
-        eventPublisher.publish(new OrcamentoAprovadoEvent(ordemServicoId, orcamento.getValorTotal()));
-        logger.info("Orçamento aprovado - osId={}, valorTotal={}", ordemServicoId, orcamento.getValorTotal());
+        var itens = orcamento.getItens().stream()
+                .map(item -> new OrcamentoAprovadoEvent.Item(
+                        item.execucaoServicoId(), item.pecaId(), item.quantidade()))
+                .toList();
+        eventPublisher.publish(new OrcamentoAprovadoEvent(
+                ordemServicoId, orcamento.getValorTotal(), itens));
+        logger.info("Orçamento aprovado - osId={}, valorTotal={}, itens={}",
+                ordemServicoId, orcamento.getValorTotal(), itens.size());
     }
 }

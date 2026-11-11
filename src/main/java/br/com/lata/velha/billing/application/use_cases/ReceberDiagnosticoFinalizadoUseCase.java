@@ -2,6 +2,7 @@ package br.com.lata.velha.billing.application.use_cases;
 
 import br.com.lata.velha.billing.application.gateways.InventoryGateway;
 import br.com.lata.velha.billing.domain.entities.Orcamento;
+import br.com.lata.velha.billing.domain.entities.OrcamentoItem;
 import br.com.lata.velha.billing.domain.events.DiagnosticoFinalizadoEvent;
 import br.com.lata.velha.billing.domain.repositories.OrcamentoRepository;
 import org.slf4j.Logger;
@@ -10,6 +11,7 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public class ReceberDiagnosticoFinalizadoUseCase {
 
@@ -38,10 +40,25 @@ public class ReceberDiagnosticoFinalizadoUseCase {
         }
 
         var valorTotal = calcularTotal(event);
-        var orcamento = orcamentoRepository.salvar(Orcamento.create(event.getOsId(), valorTotal, null));
+        var itens = extrairItens(event);
+        var orcamento = orcamentoRepository.salvar(
+                Orcamento.create(event.getOsId(), valorTotal, null, itens));
 
-        logger.info("Orçamento criado - osId={}, orcamentoId={}, valorTotal={}", event.getOsId(), orcamento.getId(), valorTotal);
+        logger.info("Orçamento criado - osId={}, orcamentoId={}, valorTotal={}, itens={}",
+                event.getOsId(), orcamento.getId(), valorTotal, itens.size());
         enviarEmailOrcamento(orcamento);
+    }
+
+    private List<OrcamentoItem> extrairItens(DiagnosticoFinalizadoEvent event) {
+        if (event.getItens() == null) {
+            return List.of();
+        }
+        return event.getItens().stream()
+                .flatMap(item -> item.pecas() == null ? java.util.stream.Stream.<OrcamentoItem>empty()
+                        : item.pecas().stream()
+                        .map(peca -> new OrcamentoItem(
+                                item.execucaoServicoId(), peca.pecaId(), peca.quantidade())))
+                .toList();
     }
 
     private BigDecimal calcularTotal(DiagnosticoFinalizadoEvent event) {
