@@ -14,6 +14,9 @@ data:
   MERCADOPAGO_BACK_URL_FAILURE: "${back_url_failure}"
   MERCADOPAGO_BACK_URL_PENDING: "${back_url_pending}"
   MESSAGING_PROVIDER: "sqs"
+  # O starter AMQP continua no classpath; sem desabilitar o indicator o
+  # /actuator/health (startupProbe) fica DOWN tentando um RabbitMQ local.
+  MANAGEMENT_HEALTH_RABBIT_ENABLED: "false"
   MESSAGING_SQS_REGION: "us-east-1"
   MESSAGING_SQS_TOPIC_ARN: "${messaging_topic_arn}"
   MESSAGING_SQS_QUEUE_URL: "${messaging_queue_url}"
