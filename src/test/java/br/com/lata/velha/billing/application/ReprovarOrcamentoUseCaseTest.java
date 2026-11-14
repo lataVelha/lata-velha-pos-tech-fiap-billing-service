@@ -3,7 +3,7 @@ package br.com.lata.velha.billing.application;
 import br.com.lata.velha.billing.application.use_cases.ReprovarOrcamentoUseCase;
 import br.com.lata.velha.billing.domain.entities.Orcamento;
 import br.com.lata.velha.billing.domain.enums.StatusOrcamento;
-import br.com.lata.velha.billing.domain.events.OrcamentoReprovadoEvent;
+import br.com.lata.velha.shared.domain.events.OrcamentoReprovadoEvent;
 import br.com.lata.velha.billing.domain.exceptions.OrcamentoNotFoundException;
 import br.com.lata.velha.billing.domain.repositories.OrcamentoRepository;
 import br.com.lata.velha.shared.application.gateways.EventPublisher;

@@ -3,7 +3,7 @@ package br.com.lata.velha.billing.application.use_cases;
 import br.com.lata.velha.billing.application.gateways.InventoryGateway;
 import br.com.lata.velha.billing.domain.entities.Orcamento;
 import br.com.lata.velha.billing.domain.entities.OrcamentoItem;
-import br.com.lata.velha.billing.domain.events.DiagnosticoFinalizadoEvent;
+import br.com.lata.velha.shared.domain.events.DiagnosticoFinalizadoEvent;
 import br.com.lata.velha.billing.domain.repositories.OrcamentoRepository;
 import jakarta.mail.internet.MimeMessage;
 import org.slf4j.Logger;

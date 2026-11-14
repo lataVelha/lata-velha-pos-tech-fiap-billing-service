@@ -4,7 +4,7 @@ import br.com.lata.velha.billing.application.use_cases.AprovarOrcamentoUseCase;
 import br.com.lata.velha.billing.domain.entities.Orcamento;
 import br.com.lata.velha.billing.domain.entities.OrcamentoItem;
 import br.com.lata.velha.billing.domain.enums.StatusOrcamento;
-import br.com.lata.velha.billing.domain.events.OrcamentoAprovadoEvent;
+import br.com.lata.velha.shared.domain.events.OrcamentoAprovadoEvent;
 import br.com.lata.velha.billing.domain.exceptions.OrcamentoNotFoundException;
 import br.com.lata.velha.billing.domain.repositories.OrcamentoRepository;
 import br.com.lata.velha.shared.application.gateways.EventPublisher;
@@ -49,8 +49,8 @@ class AprovarOrcamentoUseCaseTest {
     @Test
     void publicaEventoComItensDoOrcamento() {
         var itens = List.of(
-                new OrcamentoItem(100L, 7L, 2),
-                new OrcamentoItem(101L, 8L, 1));
+                new OrcamentoItem(100L, "7", 2),
+                new OrcamentoItem(101L, "8", 1));
         var orcamento = Orcamento.create(11L, new BigDecimal("250.00"), "cliente@teste.com", itens);
         when(repository.buscarPorOrdemServicoId(11L)).thenReturn(Optional.of(orcamento));
 
@@ -60,7 +60,7 @@ class AprovarOrcamentoUseCaseTest {
         verify(eventPublisher).publish(captor.capture());
         assertThat(captor.getValue().getItens()).hasSize(2);
         assertThat(captor.getValue().getItens().get(0).execucaoServicoId()).isEqualTo(100L);
-        assertThat(captor.getValue().getItens().get(1).pecaId()).isEqualTo(8L);
+        assertThat(captor.getValue().getItens().get(1).pecaId()).isEqualTo("8");
     }
 
     @Test

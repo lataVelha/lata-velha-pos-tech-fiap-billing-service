@@ -50,7 +50,7 @@ class OrcamentoTest {
     @Test
     void aprovaSomenteQuandoPendente() {
         var orcamento = Orcamento.create(1L, BigDecimal.TEN, null,
-                List.of(new OrcamentoItem(1L, 2L, 3)));
+                List.of(new OrcamentoItem(1L, "2", 3)));
 
         orcamento.aprovar();
 

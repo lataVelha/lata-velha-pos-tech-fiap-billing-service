@@ -18,7 +18,7 @@ class OrcamentoItemEmbeddableTest {
 
     @Test
     void converteIdaEVoltaComDominio() {
-        var item = new OrcamentoItem(1L, 2L, 3);
+        var item = new OrcamentoItem(1L, "2", 3);
 
         var embeddable = OrcamentoItemEmbeddable.from(item);
 
@@ -27,11 +27,11 @@ class OrcamentoItemEmbeddableTest {
 
     @Test
     void equalsEHashCodeConsideramTodosOsCampos() {
-        var a = OrcamentoItemEmbeddable.from(new OrcamentoItem(1L, 2L, 3));
-        var b = OrcamentoItemEmbeddable.from(new OrcamentoItem(1L, 2L, 3));
-        var diferenteExecucao = OrcamentoItemEmbeddable.from(new OrcamentoItem(9L, 2L, 3));
-        var diferentePeca = OrcamentoItemEmbeddable.from(new OrcamentoItem(1L, 9L, 3));
-        var diferenteQuantidade = OrcamentoItemEmbeddable.from(new OrcamentoItem(1L, 2L, 9));
+        var a = OrcamentoItemEmbeddable.from(new OrcamentoItem(1L, "2", 3));
+        var b = OrcamentoItemEmbeddable.from(new OrcamentoItem(1L, "2", 3));
+        var diferenteExecucao = OrcamentoItemEmbeddable.from(new OrcamentoItem(9L, "2", 3));
+        var diferentePeca = OrcamentoItemEmbeddable.from(new OrcamentoItem(1L, "9", 3));
+        var diferenteQuantidade = OrcamentoItemEmbeddable.from(new OrcamentoItem(1L, "2", 9));
 
         assertThat(a).isEqualTo(a).isEqualTo(b).hasSameHashCodeAs(b);
         assertThat(a).isNotEqualTo(diferenteExecucao)
