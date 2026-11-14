@@ -1,0 +1,718 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+  </head>
+  <body
+    style="
+      margin: 0;
+      padding: 0;
+      font-family: &quot;Segoe UI&quot;, Arial, sans-serif;
+      background-color: #f4f4f4;
+    "
+  >
+    <table
+      width="100%"
+      cellpadding="0"
+      cellspacing="0"
+      style="background-color: #f4f4f4; padding: 40px 0"
+    >
+      <tr>
+        <td align="center">
+          <table
+            width="600"
+            cellpadding="0"
+            cellspacing="0"
+            style="
+              background-color: #ffffff;
+              border-radius: 8px;
+              overflow: hidden;
+              box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            "
+          >
+            <!-- Header -->
+            <tr>
+              <td
+                th:style="${reprovada ? 'background-color: #dc3545; padding: 30px; text-align: center;' : 'background-color: #1a1a2e; padding: 30px; text-align: center;'}"
+              >
+                <h1 style="color: #ffffff; margin: 0; font-size: 28px">
+                  🚗 Lata Velha
+                </h1>
+                <p
+                  style="
+                    color: rgba(255, 255, 255, 0.7);
+                    margin: 8px 0 0;
+                    font-size: 14px;
+                  "
+                  th:text="${subtitulo}"
+                >
+                  Ordem de Serviço
+                </p>
+              </td>
+            </tr>
+
+            <!-- Body -->
+            <tr>
+              <td style="padding: 40px 30px">
+                <h2 style="color: #1a1a2e; margin: 0 0 10px; font-size: 22px">
+                  Olá, <span th:text="${nome}">Nome</span>!
+                </h2>
+
+                <p
+                  style="
+                    color: #555;
+                    font-size: 16px;
+                    line-height: 1.6;
+                    margin: 0 0 20px;
+                  "
+                  th:text="${mensagem}"
+                >
+                  Mensagem principal
+                </p>
+
+                <!-- OS Info -->
+                <table
+                  width="100%"
+                  cellpadding="0"
+                  cellspacing="0"
+                  style="
+                    background-color: #e8f4f8;
+                    border-radius: 8px;
+                    margin: 0 0 15px;
+                  "
+                >
+                  <tr>
+                    <td style="padding: 15px 20px">
+                      <p
+                        style="
+                          color: #888;
+                          font-size: 12px;
+                          margin: 0 0 4px;
+                          text-transform: uppercase;
+                          letter-spacing: 1px;
+                        "
+                      >
+                        Ordem de Serviço
+                      </p>
+                      <p
+                        style="
+                          color: #1a1a2e;
+                          font-size: 20px;
+                          font-weight: bold;
+                          margin: 0;
+                        "
+                      >
+                        Nº <span th:text="${osNumero}">0000</span>
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+
+                <!-- Veículo -->
+                <table
+                  width="100%"
+                  cellpadding="0"
+                  cellspacing="0"
+                  style="
+                    background-color: #f8f9fa;
+                    border-radius: 8px;
+                    margin: 0 0 15px;
+                  "
+                >
+                  <tr>
+                    <td style="padding: 15px 20px">
+                      <p
+                        style="
+                          color: #888;
+                          font-size: 12px;
+                          margin: 0 0 4px;
+                          text-transform: uppercase;
+                          letter-spacing: 1px;
+                        "
+                      >
+                        Veículo
+                      </p>
+                      <p
+                        style="
+                          color: #333;
+                          font-size: 16px;
+                          font-weight: bold;
+                          margin: 0;
+                        "
+                        th:text="${veiculo}"
+                      >
+                        Marca Modelo
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+
+                <!-- Reclamação (opcional) -->
+                <table
+                  th:if="${reclamacao != null}"
+                  width="100%"
+                  cellpadding="0"
+                  cellspacing="0"
+                  style="
+                    background-color: #fff3cd;
+                    border-radius: 8px;
+                    margin: 0 0 15px;
+                  "
+                >
+                  <tr>
+                    <td style="padding: 15px 20px">
+                      <p
+                        style="
+                          color: #888;
+                          font-size: 12px;
+                          margin: 0 0 4px;
+                          text-transform: uppercase;
+                          letter-spacing: 1px;
+                        "
+                      >
+                        Reclamação do proprietário
+                      </p>
+                      <p
+                        style="color: #333; font-size: 14px; margin: 0"
+                        th:text="${reclamacao}"
+                      >
+                        Descrição
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+
+                <!-- Serviços Aprovados (opcional) -->
+                <th:block
+                  th:if="${servicosAprovados != null and !servicosAprovados.isEmpty()}"
+                >
+                  <p
+                    style="
+                      color: #28a745;
+                      font-size: 16px;
+                      font-weight: bold;
+                      margin: 20px 0 10px;
+                    "
+                  >
+                    ✅ Serviços aprovados:
+                  </p>
+                  <table
+                    th:each="servico : ${servicosAprovados}"
+                    width="100%"
+                    cellpadding="0"
+                    cellspacing="0"
+                    style="
+                      background-color: #f0fff0;
+                      border-radius: 8px;
+                      margin: 0 0 8px;
+                      border-left: 4px solid #28a745;
+                    "
+                  >
+                    <tr>
+                      <td style="padding: 12px 20px">
+                        <table width="100%" cellpadding="0" cellspacing="0">
+                          <tr>
+                            <td>
+                              <p
+                                style="
+                                  color: #333;
+                                  font-size: 15px;
+                                  font-weight: bold;
+                                  margin: 0;
+                                "
+                                th:text="${servico.nome}"
+                              >
+                                Serviço
+                              </p>
+                            </td>
+                            <td style="text-align: right">
+                              <p
+                                style="
+                                  color: #28a745;
+                                  font-size: 16px;
+                                  font-weight: bold;
+                                  margin: 0;
+                                "
+                              >
+                                R$
+                                <span
+                                  th:text="${#numbers.formatDecimal(servico.valor, 1, 2)}"
+                                  >0,00</span
+                                >
+                              </p>
+                            </td>
+                          </tr>
+                        </table>
+                      </td>
+                    </tr>
+                  </table>
+                </th:block>
+
+                <!-- Serviços Recusados (opcional) -->
+                <th:block
+                  th:if="${servicosRecusados != null and !servicosRecusados.isEmpty()}"
+                >
+                  <p
+                    th:text="${reprovada ? '❌ Serviços recusados:' : '❌ Serviços não aprovados:'}"
+                    style="
+                      color: #dc3545;
+                      font-size: 16px;
+                      font-weight: bold;
+                      margin: 20px 0 10px;
+                    "
+                  >
+                    ❌ Serviços recusados:
+                  </p>
+                  <table
+                    th:each="servico : ${servicosRecusados}"
+                    width="100%"
+                    cellpadding="0"
+                    cellspacing="0"
+                    style="
+                      background-color: #fff5f5;
+                      border-radius: 8px;
+                      margin: 0 0 8px;
+                      border-left: 4px solid #dc3545;
+                    "
+                  >
+                    <tr>
+                      <td style="padding: 12px 20px">
+                        <table width="100%" cellpadding="0" cellspacing="0">
+                          <tr>
+                            <td>
+                              <p
+                                style="
+                                  color: #999;
+                                  font-size: 15px;
+                                  font-weight: bold;
+                                  margin: 0;
+                                  text-decoration: line-through;
+                                "
+                                th:text="${servico.nome}"
+                              >
+                                Serviço
+                              </p>
+                            </td>
+                            <td style="text-align: right">
+                              <p
+                                style="
+                                  color: #999;
+                                  font-size: 16px;
+                                  font-weight: bold;
+                                  margin: 0;
+                                  text-decoration: line-through;
+                                "
+                              >
+                                R$
+                                <span
+                                  th:text="${#numbers.formatDecimal(servico.valor, 1, 2)}"
+                                  >0,00</span
+                                >
+                              </p>
+                            </td>
+                          </tr>
+                        </table>
+                      </td>
+                    </tr>
+                  </table>
+                </th:block>
+
+                <!-- Serviços do diagnóstico (opcional) -->
+                <th:block th:if="${servicos != null and !servicos.isEmpty()}">
+                  <p
+                    style="
+                      color: #1a1a2e;
+                      font-size: 16px;
+                      font-weight: bold;
+                      margin: 20px 0 10px;
+                    "
+                  >
+                    🔧 Serviços identificados:
+                  </p>
+                  <table
+                    th:each="servico : ${servicos}"
+                    width="100%"
+                    cellpadding="0"
+                    cellspacing="0"
+                    style="
+                      background-color: #f8f9fa;
+                      border-radius: 8px;
+                      margin: 0 0 8px;
+                      border-left: 4px solid #1a1a2e;
+                    "
+                  >
+                    <tr>
+                      <td style="padding: 12px 20px">
+                        <table width="100%" cellpadding="0" cellspacing="0">
+                          <tr>
+                            <td>
+                              <p
+                                style="
+                                  color: #333;
+                                  font-size: 15px;
+                                  font-weight: bold;
+                                  margin: 0;
+                                "
+                                th:text="${servico.nome}"
+                              >
+                                Serviço
+                              </p>
+                              <p
+                                th:if="${servico.descricao != null and servico.descricao != ''}"
+                                style="
+                                  color: #888;
+                                  font-size: 13px;
+                                  margin: 4px 0 0;
+                                "
+                                th:text="${servico.descricao}"
+                              >
+                                Descrição
+                              </p>
+                            </td>
+                            <td style="text-align: right; vertical-align: top">
+                              <p
+                                style="
+                                  color: #1a1a2e;
+                                  font-size: 16px;
+                                  font-weight: bold;
+                                  margin: 0;
+                                "
+                              >
+                                R$
+                                <span
+                                  th:text="${#numbers.formatDecimal(servico.valor, 1, 2)}"
+                                  >0,00</span
+                                >
+                              </p>
+                            </td>
+                          </tr>
+                        </table>
+                      </td>
+                    </tr>
+                  </table>
+                </th:block>
+
+                <!-- Totais (opcional) -->
+                <table
+                  th:if="${valorAprovado != null or valorTotal != null or valorRecusado != null}"
+                  width="100%"
+                  cellpadding="0"
+                  cellspacing="0"
+                  style="margin: 25px 0; border-top: 2px solid #1a1a2e"
+                >
+                  <tr>
+                    <td style="padding: 15px 0">
+                      <table width="100%" cellpadding="4" cellspacing="0">
+                        <tr th:if="${valorAprovado != null}">
+                          <td style="color: #888; font-size: 14px">
+                            Valor aprovado:
+                          </td>
+                          <td
+                            style="
+                              color: #28a745;
+                              font-size: 20px;
+                              font-weight: bold;
+                              text-align: right;
+                            "
+                          >
+                            R$
+                            <span
+                              th:text="${#numbers.formatDecimal(valorAprovado, 1, 2)}"
+                              >0,00</span
+                            >
+                          </td>
+                        </tr>
+                        <tr
+                          th:if="${valorRecusado != null and valorRecusado > 0}"
+                        >
+                          <td style="color: #888; font-size: 14px">
+                            Valor recusado:
+                          </td>
+                          <td
+                            style="
+                              color: #dc3545;
+                              font-size: 14px;
+                              text-align: right;
+                              text-decoration: line-through;
+                            "
+                          >
+                            R$
+                            <span
+                              th:text="${#numbers.formatDecimal(valorRecusado, 1, 2)}"
+                              >0,00</span
+                            >
+                          </td>
+                        </tr>
+                        <tr
+                          th:if="${valorTotal != null and valorAprovado == null}"
+                        >
+                          <td style="color: #888; font-size: 14px">
+                            Valor total estimado:
+                          </td>
+                          <td
+                            style="
+                              color: #1a1a2e;
+                              font-size: 20px;
+                              font-weight: bold;
+                              text-align: right;
+                            "
+                          >
+                            R$
+                            <span
+                              th:text="${#numbers.formatDecimal(valorTotal, 1, 2)}"
+                              >0,00</span
+                            >
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+
+                <!-- Timeline dinâmica -->
+                <p
+                  style="
+                    color: #1a1a2e;
+                    font-size: 16px;
+                    font-weight: bold;
+                    margin: 25px 0 20px;
+                  "
+                >
+                  📍 Acompanhe o progresso
+                </p>
+
+                <table
+                  th:each="step, iter : ${timeline}"
+                  width="100%"
+                  cellpadding="0"
+                  cellspacing="0"
+                >
+                  <!-- Step row -->
+                  <tr>
+                    <td width="40" style="vertical-align: top; padding: 0">
+                      <table
+                        cellpadding="0"
+                        cellspacing="0"
+                        style="margin: 0 auto"
+                      >
+                        <tr>
+                          <!-- Concluído: verde -->
+                          <th:block th:if="${step.status == 'CONCLUIDO'}">
+                            <td
+                              style="
+                                width: 28px;
+                                height: 28px;
+                                background-color: #28a745;
+                                border-radius: 50%;
+                                text-align: center;
+                                line-height: 28px;
+                                color: #fff;
+                                font-size: 14px;
+                                font-weight: bold;
+                              "
+                            >
+                              ✓
+                            </td>
+                          </th:block>
+                          <!-- Recusado: vermelho -->
+                          <th:block th:if="${step.status == 'RECUSADO'}">
+                            <td
+                              style="
+                                width: 28px;
+                                height: 28px;
+                                background-color: #dc3545;
+                                border-radius: 50%;
+                                text-align: center;
+                                line-height: 28px;
+                                color: #fff;
+                                font-size: 14px;
+                                font-weight: bold;
+                              "
+                            >
+                              ✗
+                            </td>
+                          </th:block>
+                          <!-- Atual: amarelo -->
+                          <th:block th:if="${step.status == 'ATUAL'}">
+                            <td
+                              style="
+                                width: 28px;
+                                height: 28px;
+                                background-color: #ffc107;
+                                border-radius: 50%;
+                                text-align: center;
+                                line-height: 28px;
+                                color: #fff;
+                                font-size: 14px;
+                              "
+                            >
+                              ⏳
+                            </td>
+                          </th:block>
+                          <!-- Pendente: cinza -->
+                          <th:block th:if="${step.status == 'PENDENTE'}">
+                            <td
+                              style="
+                                width: 28px;
+                                height: 28px;
+                                background-color: #e0e0e0;
+                                border-radius: 50%;
+                                text-align: center;
+                                line-height: 28px;
+                                color: #999;
+                                font-size: 12px;
+                                font-weight: bold;
+                              "
+                              th:text="${step.numero}"
+                            >
+                              0
+                            </td>
+                          </th:block>
+                        </tr>
+                      </table>
+                    </td>
+                    <td style="padding: 0 0 0 12px">
+                      <!-- Título com cor dinâmica -->
+                      <p
+                        th:if="${step.status == 'CONCLUIDO'}"
+                        style="
+                          color: #28a745;
+                          font-size: 14px;
+                          font-weight: bold;
+                          margin: 0;
+                        "
+                        th:text="${step.titulo}"
+                      >
+                        Passo
+                      </p>
+                      <p
+                        th:if="${step.status == 'RECUSADO'}"
+                        style="
+                          color: #dc3545;
+                          font-size: 14px;
+                          font-weight: bold;
+                          margin: 0;
+                        "
+                        th:text="${step.titulo}"
+                      >
+                        Passo
+                      </p>
+                      <p
+                        th:if="${step.status == 'ATUAL'}"
+                        style="
+                          color: #ffc107;
+                          font-size: 14px;
+                          font-weight: bold;
+                          margin: 0;
+                        "
+                        th:text="${step.titulo}"
+                      >
+                        Passo
+                      </p>
+                      <p
+                        th:if="${step.status == 'PENDENTE'}"
+                        style="
+                          color: #999;
+                          font-size: 14px;
+                          font-weight: bold;
+                          margin: 0;
+                        "
+                        th:text="${step.titulo}"
+                      >
+                        Passo
+                      </p>
+                      <!-- Descrição -->
+                      <p
+                        th:if="${step.status == 'PENDENTE'}"
+                        style="color: #bbb; font-size: 12px; margin: 2px 0 0"
+                        th:text="${step.descricao}"
+                      >
+                        Desc
+                      </p>
+                      <p
+                        th:if="${step.status == 'RECUSADO'}"
+                        style="color: #dc3545; font-size: 12px; margin: 2px 0 0"
+                        th:text="${step.descricao}"
+                      >
+                        Desc
+                      </p>
+                      <p
+                        th:if="${step.status != 'PENDENTE' and step.status != 'RECUSADO'}"
+                        style="color: #888; font-size: 12px; margin: 2px 0 0"
+                        th:text="${step.descricao}"
+                      >
+                        Desc
+                      </p>
+                    </td>
+                  </tr>
+                  <!-- Linha conectora -->
+                  <tr th:unless="${iter.last}">
+                    <td width="40" style="vertical-align: top; padding: 0">
+                      <table
+                        cellpadding="0"
+                        cellspacing="0"
+                        style="margin: 0 auto"
+                      >
+                        <tr>
+                          <th:block th:if="${step.status == 'CONCLUIDO'}">
+                            <td
+                              style="
+                                width: 2px;
+                                height: 20px;
+                                background-color: #28a745;
+                              "
+                            ></td>
+                          </th:block>
+                          <th:block th:if="${step.status == 'RECUSADO'}">
+                            <td
+                              style="
+                                width: 2px;
+                                height: 20px;
+                                background-color: #dc3545;
+                              "
+                            ></td>
+                          </th:block>
+                          <th:block
+                            th:if="${step.status != 'CONCLUIDO' and step.status != 'RECUSADO'}"
+                          >
+                            <td
+                              style="
+                                width: 2px;
+                                height: 20px;
+                                background-color: #e0e0e0;
+                              "
+                            ></td>
+                          </th:block>
+                        </tr>
+                      </table>
+                    </td>
+                    <td></td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+              <td
+                style="
+                  background-color: #f8f9fa;
+                  padding: 20px 30px;
+                  text-align: center;
+                  border-top: 1px solid #eee;
+                "
+              >
+                <p style="color: #999; font-size: 12px; margin: 0">
+                  © 2026 Lata Velha — FIAP Pós-Tech
+                </p>
+                <p style="color: #bbb; font-size: 11px; margin: 8px 0 0">
+                  Este é um email automático. Não responda.
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

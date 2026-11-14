@@ -16,6 +16,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.web.client.RestClient;
+import org.thymeleaf.TemplateEngine;
 
 import java.time.Duration;
 
@@ -44,8 +45,9 @@ public class BillingEventosBeansConfig {
     public ReceberDiagnosticoFinalizadoUseCase receberDiagnosticoFinalizadoUseCase(
             OrcamentoRepository orcamentoRepository,
             InventoryServiceClient inventoryServiceClient,
-            JavaMailSender mailSender) {
-        return new ReceberDiagnosticoFinalizadoUseCase(orcamentoRepository, inventoryServiceClient, mailSender, emailRemetente);
+            JavaMailSender mailSender,
+            TemplateEngine templateEngine) {
+        return new ReceberDiagnosticoFinalizadoUseCase(orcamentoRepository, inventoryServiceClient, mailSender, templateEngine, emailRemetente);
     }
 
     @Bean
