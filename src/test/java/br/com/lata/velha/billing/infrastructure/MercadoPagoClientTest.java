@@ -130,4 +130,24 @@ class MercadoPagoClientTest {
         server.expect(requestTo("https://api.mp.test/v1/payments/1")).andRespond(withStatus(HttpStatus.INTERNAL_SERVER_ERROR));
         assertThatThrownBy(() -> client.buscarPagamento(1L)).isInstanceOf(IntegracaoPagamentoException.class);
     }
+
+    @Test
+    void respostaInvalidaAoCriarPreferenciaViraIntegracaoException() {
+        server.expect(requestTo("https://api.mp.test/checkout/preferences"))
+                .andRespond(withSuccess("{}", MediaType.APPLICATION_JSON));
+
+        assertThatThrownBy(() -> client.criarPreferencia(Pagamento.create(42L, BigDecimal.TEN, "x", null)))
+                .isInstanceOf(IntegracaoPagamentoException.class)
+                .hasMessageContaining("Resposta inválida");
+    }
+
+    @Test
+    void respostaInvalidaAoBuscarPagamentoViraIntegracaoException() {
+        server.expect(requestTo("https://api.mp.test/v1/payments/1"))
+                .andRespond(withSuccess("{}", MediaType.APPLICATION_JSON));
+
+        assertThatThrownBy(() -> client.buscarPagamento(1L))
+                .isInstanceOf(IntegracaoPagamentoException.class)
+                .hasMessageContaining("Resposta inválida");
+    }
 }
