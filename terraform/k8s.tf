@@ -1,6 +1,6 @@
 locals {
   k8s_dir     = "${path.module}/../k8s"
-  webhook_url = "${aws_apigatewayv2_api.billing.api_endpoint}/pagamentos/webhook"
+  webhook_url = "${data.terraform_remote_state.addons.outputs.app_api_endpoint}/pagamentos/webhook"
   messaging   = data.terraform_remote_state.messaging.outputs
 
   configmap_yaml = templatefile("${local.k8s_dir}/configmap.yaml", {
