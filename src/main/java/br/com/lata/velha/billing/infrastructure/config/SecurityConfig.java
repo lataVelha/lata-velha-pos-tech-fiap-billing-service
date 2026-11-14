@@ -25,7 +25,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable) // NOSONAR
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/actuator/health/**").permitAll()
-                        .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/billing/swagger-ui.html", "/billing/swagger-ui/**", "/billing/v3/api-docs/**").permitAll()
                         .requestMatchers("/pagamentos/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/orcamentos/*/aprovar").hasAnyRole(USER, ADMIN)
                         .requestMatchers(HttpMethod.POST, "/orcamentos/*/reprovar").hasAnyRole(USER, ADMIN)
