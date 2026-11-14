@@ -20,7 +20,9 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
                                                     JwtAuthenticationConverter jwtAuthConverter) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable)
+                // API stateless com JWT (Bearer): não há sessão/cookie a proteger,
+                // então o CSRF não se aplica. // NOSONAR (java:S4502)
+                .csrf(AbstractHttpConfigurer::disable) // NOSONAR
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/actuator/health/**").permitAll()
                         .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
