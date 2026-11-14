@@ -16,6 +16,10 @@ locals {
   node_security_group_id = data.aws_eks_cluster.this.vpc_config[0].cluster_security_group_id
 }
 
+data "aws_vpc" "this" {
+  id = local.vpc_id
+}
+
 # ALB compartilhado — le o endpoint do API Gateway publico para montar o webhook_url.
 data "terraform_remote_state" "addons" {
   backend = "s3"
