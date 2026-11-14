@@ -4,5 +4,5 @@ import java.math.BigDecimal;
 import java.util.Optional;
 
 public interface InventoryGateway {
-    Optional<BigDecimal> buscarValorPeca(Long pecaId);
+    Optional<BigDecimal> buscarValorPeca(String pecaId);
 }

@@ -2,7 +2,7 @@ package br.com.lata.velha.billing.application.use_cases;
 
 import br.com.lata.velha.billing.application.gateways.MercadoPagoGateway;
 import br.com.lata.velha.billing.domain.enums.StatusPagamento;
-import br.com.lata.velha.billing.domain.events.PaymentDoneEvent;
+import br.com.lata.velha.shared.domain.events.PaymentDoneEvent;
 import br.com.lata.velha.billing.domain.repositories.PagamentoRepository;
 import br.com.lata.velha.shared.application.gateways.EventPublisher;
 import org.slf4j.Logger;

@@ -21,7 +21,7 @@ public class InventoryServiceClient implements InventoryGateway {
     }
 
     @Override
-    public Optional<BigDecimal> buscarValorPeca(Long pecaId) {
+    public Optional<BigDecimal> buscarValorPeca(String pecaId) {
         try {
             var response = restClient.get()
                     .uri("/pecas/{id}", pecaId)
@@ -39,5 +39,5 @@ public class InventoryServiceClient implements InventoryGateway {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    record PecaResponse(Long id, String nome, BigDecimal valor) {}
+    record PecaResponse(String id, String nome, BigDecimal valor) {}
 }

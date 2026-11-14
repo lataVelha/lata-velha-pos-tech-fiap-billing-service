@@ -1,6 +1,6 @@
 package br.com.lata.velha.billing.application.use_cases;
 
-import br.com.lata.velha.billing.domain.events.OrcamentoAprovadoEvent;
+import br.com.lata.velha.shared.domain.events.OrcamentoAprovadoEvent;
 import br.com.lata.velha.billing.domain.exceptions.OrcamentoNotFoundException;
 import br.com.lata.velha.billing.domain.repositories.OrcamentoRepository;
 import br.com.lata.velha.shared.application.gateways.EventPublisher;

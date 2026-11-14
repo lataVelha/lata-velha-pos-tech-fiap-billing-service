@@ -4,9 +4,9 @@ import br.com.lata.velha.billing.application.gateways.InventoryGateway;
 import br.com.lata.velha.billing.application.use_cases.ReceberDiagnosticoFinalizadoUseCase;
 import br.com.lata.velha.billing.domain.entities.Orcamento;
 import br.com.lata.velha.billing.domain.entities.OrcamentoItem;
-import br.com.lata.velha.billing.domain.events.DiagnosticoFinalizadoEvent;
-import br.com.lata.velha.billing.domain.events.DiagnosticoFinalizadoEvent.ItemDiagnostico;
-import br.com.lata.velha.billing.domain.events.DiagnosticoFinalizadoEvent.ItemPeca;
+import br.com.lata.velha.shared.domain.events.DiagnosticoFinalizadoEvent;
+import br.com.lata.velha.shared.domain.events.DiagnosticoFinalizadoEvent.ItemDiagnostico;
+import br.com.lata.velha.shared.domain.events.DiagnosticoFinalizadoEvent.ItemPeca;
 import br.com.lata.velha.billing.domain.repositories.OrcamentoRepository;
 import jakarta.mail.Session;
 import jakarta.mail.internet.MimeMessage;
@@ -76,15 +76,15 @@ class ReceberDiagnosticoFinalizadoUseCaseTest {
     void calculaTotalComMaoDeObraEPecasUsandoInventory() {
         var event = new DiagnosticoFinalizadoEvent(12L, List.of(
                 new ItemDiagnostico(100L, 1L, new BigDecimal("120.00"),
-                        List.of(new ItemPeca(7L, 2))),
+                        List.of(new ItemPeca("7", 2))),
                 new ItemDiagnostico(101L, 2L, null,
-                        List.of(new ItemPeca(8L, 3), new ItemPeca(9L, 1))),
+                        List.of(new ItemPeca("8", 3), new ItemPeca("9", 1))),
                 new ItemDiagnostico(102L, 3L, new BigDecimal("50.00"), List.of())
         ));
         when(repository.buscarPorOrdemServicoId(12L)).thenReturn(Optional.empty());
-        when(inventoryGateway.buscarValorPeca(7L)).thenReturn(Optional.of(new BigDecimal("10.00")));
-        when(inventoryGateway.buscarValorPeca(8L)).thenReturn(Optional.empty());
-        when(inventoryGateway.buscarValorPeca(9L)).thenReturn(Optional.of(new BigDecimal("5.50")));
+        when(inventoryGateway.buscarValorPeca("7")).thenReturn(Optional.of(new BigDecimal("10.00")));
+        when(inventoryGateway.buscarValorPeca("8")).thenReturn(Optional.empty());
+        when(inventoryGateway.buscarValorPeca("9")).thenReturn(Optional.of(new BigDecimal("5.50")));
 
         useCase.execute(event);
 
@@ -94,9 +94,9 @@ class ReceberDiagnosticoFinalizadoUseCaseTest {
         assertThat(captor.getValue().getValorTotal()).isEqualByComparingTo("195.50");
         assertThat(captor.getValue().getItens())
                 .containsExactly(
-                        new OrcamentoItem(100L, 7L, 2),
-                        new OrcamentoItem(101L, 8L, 3),
-                        new OrcamentoItem(101L, 9L, 1));
+                        new OrcamentoItem(100L, "7", 2),
+                        new OrcamentoItem(101L, "8", 3),
+                        new OrcamentoItem(101L, "9", 1));
     }
 
     @Test

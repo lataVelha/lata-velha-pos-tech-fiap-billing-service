@@ -13,7 +13,7 @@ public class OrcamentoItemEmbeddable {
     private Long execucaoServicoId;
 
     @Column(name = "peca_id", nullable = false)
-    private Long pecaId;
+    private String pecaId;
 
     @Column(name = "quantidade", nullable = false)
     private Integer quantidade;
@@ -21,7 +21,7 @@ public class OrcamentoItemEmbeddable {
     protected OrcamentoItemEmbeddable() {
     }
 
-    private OrcamentoItemEmbeddable(Long execucaoServicoId, Long pecaId, Integer quantidade) {
+    private OrcamentoItemEmbeddable(Long execucaoServicoId, String pecaId, Integer quantidade) {
         this.execucaoServicoId = execucaoServicoId;
         this.pecaId = pecaId;
         this.quantidade = quantidade;

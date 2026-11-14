@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.UUID;
 
-import br.com.lata.velha.billing.domain.events.PaymentDoneEvent;
+import br.com.lata.velha.shared.domain.events.PaymentDoneEvent;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;

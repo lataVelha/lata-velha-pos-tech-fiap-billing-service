@@ -4,8 +4,8 @@ import br.com.lata.velha.billing.application.event_handlers.DiagnosticoFinalizad
 import br.com.lata.velha.billing.application.event_handlers.OSEndedEventHandler;
 import br.com.lata.velha.billing.application.use_cases.EmitirCobrancaUseCase;
 import br.com.lata.velha.billing.application.use_cases.ReceberDiagnosticoFinalizadoUseCase;
-import br.com.lata.velha.billing.domain.events.DiagnosticoFinalizadoEvent;
-import br.com.lata.velha.billing.domain.events.OSEndedEvent;
+import br.com.lata.velha.shared.domain.events.DiagnosticoFinalizadoEvent;
+import br.com.lata.velha.shared.domain.events.OSEndedEvent;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

@@ -37,7 +37,7 @@ class InventoryServiceClientTest {
                         {"id":1,"nome":"Pastilha de freio","valor":89.90}
                         """, MediaType.APPLICATION_JSON));
 
-        var valor = client.buscarValorPeca(1L);
+        var valor = client.buscarValorPeca("1");
 
         assertThat(valor).contains(new java.math.BigDecimal("89.90"));
         server.verify();
@@ -48,7 +48,7 @@ class InventoryServiceClientTest {
         server.expect(requestTo(BASE_URL + "/pecas/2"))
                 .andRespond(withStatus(HttpStatus.NO_CONTENT));
 
-        assertThat(client.buscarValorPeca(2L)).isEmpty();
+        assertThat(client.buscarValorPeca("2")).isEmpty();
         server.verify();
     }
 
@@ -59,7 +59,7 @@ class InventoryServiceClientTest {
                         {"id":3,"nome":"Peça sem preço"}
                         """, MediaType.APPLICATION_JSON));
 
-        assertThat(client.buscarValorPeca(3L)).isEmpty();
+        assertThat(client.buscarValorPeca("3")).isEmpty();
         server.verify();
     }
 
@@ -68,7 +68,7 @@ class InventoryServiceClientTest {
         server.expect(requestTo(BASE_URL + "/pecas/4"))
                 .andRespond(withStatus(HttpStatus.INTERNAL_SERVER_ERROR));
 
-        assertThat(client.buscarValorPeca(4L)).isEmpty();
+        assertThat(client.buscarValorPeca("4")).isEmpty();
         server.verify();
     }
 }
