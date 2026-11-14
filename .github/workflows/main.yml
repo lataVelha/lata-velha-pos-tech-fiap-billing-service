@@ -76,6 +76,10 @@ on:
         required: true
       TF_MERCADOPAGO_WEBHOOK_SECRET:
         required: false
+      TF_MAIL_USERNAME:
+        required: true
+      TF_MAIL_PASSWORD:
+        required: true
       TF_DD_API_KEY:
         required: false
       SONAR_TOKEN:
@@ -201,6 +205,8 @@ jobs:
           TF_VAR_mercadopago_access_token: ${{ secrets.TF_MERCADOPAGO_ACCESS_TOKEN || 'dummy' }}
           TF_VAR_mercadopago_webhook_secret: ${{ secrets.TF_MERCADOPAGO_WEBHOOK_SECRET }}
           TF_VAR_dd_api_key: ${{ secrets.TF_DD_API_KEY }}
+          TF_VAR_mail_username: ${{ secrets.TF_MAIL_USERNAME }}
+          TF_VAR_mail_password: ${{ secrets.TF_MAIL_PASSWORD }}
         run: |
           terraform init -reconfigure \
             -backend-config="bucket=${TF_VAR_state_bucket}" \
@@ -243,6 +249,8 @@ jobs:
       TF_VAR_mercadopago_access_token: ${{ secrets.TF_MERCADOPAGO_ACCESS_TOKEN || 'dummy' }}
       TF_VAR_mercadopago_webhook_secret: ${{ secrets.TF_MERCADOPAGO_WEBHOOK_SECRET }}
       TF_VAR_dd_api_key: ${{ secrets.TF_DD_API_KEY }}
+      TF_VAR_mail_username: ${{ secrets.TF_MAIL_USERNAME }}
+      TF_VAR_mail_password: ${{ secrets.TF_MAIL_PASSWORD }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -285,6 +293,8 @@ jobs:
       TF_VAR_mercadopago_access_token: ${{ secrets.TF_MERCADOPAGO_ACCESS_TOKEN || 'dummy' }}
       TF_VAR_mercadopago_webhook_secret: ${{ secrets.TF_MERCADOPAGO_WEBHOOK_SECRET }}
       TF_VAR_dd_api_key: ${{ secrets.TF_DD_API_KEY }}
+      TF_VAR_mail_username: ${{ secrets.TF_MAIL_USERNAME }}
+      TF_VAR_mail_password: ${{ secrets.TF_MAIL_PASSWORD }}
       TF_VAR_node_port: 30081
     steps:
       - uses: actions/checkout@v4
@@ -366,6 +376,8 @@ jobs:
       TF_VAR_mercadopago_access_token: "dummy"
       TF_VAR_mercadopago_webhook_secret: "dummy"
       TF_VAR_dd_api_key: "dummy"
+      TF_VAR_mail_username: "dummy"
+      TF_VAR_mail_password: "dummy"
       TF_VAR_node_port: 30081
     steps:
       - uses: actions/checkout@v4

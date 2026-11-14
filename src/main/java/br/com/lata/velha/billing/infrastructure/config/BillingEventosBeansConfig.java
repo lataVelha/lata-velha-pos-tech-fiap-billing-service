@@ -6,6 +6,7 @@ import br.com.lata.velha.billing.application.use_cases.AprovarOrcamentoUseCase;
 import br.com.lata.velha.billing.application.use_cases.CriarPagamentoUseCase;
 import br.com.lata.velha.billing.application.use_cases.EmitirCobrancaUseCase;
 import br.com.lata.velha.billing.application.use_cases.ReceberDiagnosticoFinalizadoUseCase;
+import br.com.lata.velha.billing.application.use_cases.ReprovarOrcamentoUseCase;
 import br.com.lata.velha.billing.domain.repositories.OrcamentoRepository;
 import br.com.lata.velha.billing.infrastructure.inventory.InventoryServiceClient;
 import br.com.lata.velha.shared.application.gateways.EventPublisher;
@@ -16,6 +17,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.web.client.RestClient;
+import org.thymeleaf.TemplateEngine;
 
 import java.time.Duration;
 
@@ -44,14 +46,21 @@ public class BillingEventosBeansConfig {
     public ReceberDiagnosticoFinalizadoUseCase receberDiagnosticoFinalizadoUseCase(
             OrcamentoRepository orcamentoRepository,
             InventoryServiceClient inventoryServiceClient,
-            JavaMailSender mailSender) {
-        return new ReceberDiagnosticoFinalizadoUseCase(orcamentoRepository, inventoryServiceClient, mailSender, emailRemetente);
+            JavaMailSender mailSender,
+            TemplateEngine templateEngine) {
+        return new ReceberDiagnosticoFinalizadoUseCase(orcamentoRepository, inventoryServiceClient, mailSender, templateEngine, emailRemetente);
     }
 
     @Bean
     public AprovarOrcamentoUseCase aprovarOrcamentoUseCase(OrcamentoRepository orcamentoRepository,
                                                             EventPublisher eventPublisher) {
         return new AprovarOrcamentoUseCase(orcamentoRepository, eventPublisher);
+    }
+
+    @Bean
+    public ReprovarOrcamentoUseCase reprovarOrcamentoUseCase(OrcamentoRepository orcamentoRepository,
+                                                              EventPublisher eventPublisher) {
+        return new ReprovarOrcamentoUseCase(orcamentoRepository, eventPublisher);
     }
 
     @Bean

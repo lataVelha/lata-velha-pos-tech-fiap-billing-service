@@ -135,3 +135,23 @@ variable "log_retention_days" {
   type        = number
   default     = 7
 }
+
+variable "mail_username" {
+  description = "Email remetente (Gmail) — obrigatorio para envio do orçamento ao cliente"
+  type        = string
+  sensitive   = true
+  validation {
+    condition     = length(trimspace(var.mail_username)) > 0
+    error_message = "mail_username nao pode ser vazio. Sem mail configurado o envio de orcamento falha."
+  }
+}
+
+variable "mail_password" {
+  description = "Senha de app do Gmail — obrigatoria"
+  type        = string
+  sensitive   = true
+  validation {
+    condition     = length(trimspace(var.mail_password)) > 0
+    error_message = "mail_password nao pode ser vazio."
+  }
+}

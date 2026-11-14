@@ -20,6 +20,8 @@ locals {
     mp_access_token_b64   = base64encode(var.mercadopago_access_token)
     mp_webhook_secret_b64 = base64encode(var.mercadopago_webhook_secret)
     dd_api_key_b64        = base64encode(var.dd_api_key)
+    mail_username_b64     = base64encode(var.mail_username)
+    mail_password_b64     = base64encode(var.mail_password)
   })
 }
 
