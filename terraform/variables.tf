@@ -37,12 +37,6 @@ variable "cluster_ca_data" {
   sensitive   = true
 }
 
-variable "node_group_name" {
-  description = "Node group do EKS cujo ASG e registrado no NLB"
-  type        = string
-  default     = "default"
-}
-
 variable "node_port" {
   description = "NodePort do Service do billing (destino do NLB). O app usa 30080"
   type        = number
@@ -128,12 +122,6 @@ variable "mercadopago_back_url_pending" {
   description = "Para onde o comprador volta com pagamento pendente (opcional)"
   type        = string
   default     = ""
-}
-
-variable "log_retention_days" {
-  description = "Retencao dos access logs do API Gateway"
-  type        = number
-  default     = 7
 }
 
 variable "mail_username" {
