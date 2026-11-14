@@ -6,6 +6,7 @@ import br.com.lata.velha.billing.application.use_cases.AprovarOrcamentoUseCase;
 import br.com.lata.velha.billing.application.use_cases.CriarPagamentoUseCase;
 import br.com.lata.velha.billing.application.use_cases.EmitirCobrancaUseCase;
 import br.com.lata.velha.billing.application.use_cases.ReceberDiagnosticoFinalizadoUseCase;
+import br.com.lata.velha.billing.application.use_cases.ReprovarOrcamentoUseCase;
 import br.com.lata.velha.billing.domain.repositories.OrcamentoRepository;
 import br.com.lata.velha.billing.infrastructure.inventory.InventoryServiceClient;
 import br.com.lata.velha.shared.application.gateways.EventPublisher;
@@ -72,5 +73,11 @@ public class BillingEventosBeansConfig {
     @Bean
     public OSEndedEventHandler osEndedEventHandler(EmitirCobrancaUseCase useCase) {
         return new OSEndedEventHandler(useCase);
+    }
+
+    @Bean
+    public ReprovarOrcamentoUseCase reprovarOrcamentoUseCase(OrcamentoRepository orcamentoRepository,
+                                                              EventPublisher eventPublisher) {
+        return new ReprovarOrcamentoUseCase(orcamentoRepository, eventPublisher);
     }
 }
