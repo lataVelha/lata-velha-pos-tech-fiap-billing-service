@@ -78,6 +78,8 @@ on:
         required: false
       TF_DD_API_KEY:
         required: false
+      SONAR_TOKEN:
+        required: false
 
 permissions:
   contents: read
@@ -97,12 +99,17 @@ jobs:
     if: inputs.destroy != true && inputs.skip_tests != true
     runs-on: ubuntu-24.04
     timeout-minutes: 15
+    env:
+      # Vazio em PR de fork (sem secret) e em chamadas do mono (secret não
+      # repassado): nesses casos a análise do Sonar é pulada.
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     steps:
       - uses: actions/checkout@v4
         with:
           repository: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || 'lataVelha/lata-velha-pos-tech-fiap-billing-service' }}
           ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || 'master' }}
           submodules: recursive
+          fetch-depth: 0 # Sonar: histórico completo para SCM/blame
       - uses: actions/setup-java@v4
         with:
           java-version: "21"
@@ -110,6 +117,16 @@ jobs:
           cache: maven
       - name: mvn test
         run: mvn -B test -Dspring.profiles.active=test
+      - name: SonarQube Cloud
+        if: env.SONAR_TOKEN != ''
+        env:
+          SONAR_ORGANIZATION: ${{ vars.SONAR_ORGANIZATION }}
+        run: >
+          mvn -B org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
+          -Dspring.profiles.active=test
+          -Dsonar.host.url=https://sonarcloud.io
+          -Dsonar.organization="${SONAR_ORGANIZATION}"
+          -Dsonar.projectKey="${{ vars.SONAR_PROJECT_KEY || format('{0}_{1}', github.repository_owner, github.event.repository.name) }}"
 
   validate:
     name: "CI · Terraform validate"
