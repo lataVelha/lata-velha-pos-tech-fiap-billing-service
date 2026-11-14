@@ -116,6 +116,15 @@ class PagamentoApiIT {
     }
 
     @Test
+    void webhookComDataIdNaoNumericoRetorna400() throws Exception {
+        mvc.perform(post("/pagamentos/webhook").param("data.id", "abc").param("type", "payment")
+                        .header("x-signature", assinatura("abc", "req-4", "1"))
+                        .header("x-request-id", "req-4"))
+                .andExpect(status().isBadRequest());
+        verify(mercadoPago, never()).buscarPagamento(any());
+    }
+
+    @Test
     void falhaNoMercadoPagoNoWebhookRetorna5xxParaRetentativa() throws Exception {
         when(mercadoPago.buscarPagamento(1L)).thenThrow(new IntegracaoPagamentoException("fora do ar", null));
         mvc.perform(post("/pagamentos/webhook").param("data.id", "1").param("type", "payment")

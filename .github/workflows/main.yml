@@ -103,6 +103,9 @@ jobs:
     if: inputs.destroy != true && inputs.skip_tests != true
     runs-on: ubuntu-24.04
     timeout-minutes: 15
+    permissions:
+      contents: read
+      pull-requests: write
     env:
       # Vazio em PR de fork (sem secret) e em chamadas do mono (secret não
       # repassado): nesses casos a análise do Sonar é pulada.
@@ -121,6 +124,58 @@ jobs:
           cache: maven
       - name: mvn test
         run: mvn -B test -Dspring.profiles.active=test
+      - name: Calcular cobertura
+        id: cobertura
+        if: failure()
+        run: |
+          if [ -f target/site/jacoco/jacoco.xml ]; then
+            PCT=$(python3 -c 'import xml.etree.ElementTree as ET; r=ET.parse("target/site/jacoco/jacoco.xml").getroot(); c=[x for x in r.findall("counter") if x.get("type")=="LINE"][0]; cov=int(c.get("covered")); mis=int(c.get("missed")); t=cov+mis; print(f"{100*cov/t:.1f}" if t else "n/a")')
+          else
+            PCT="n/a"
+          fi
+          echo "pct=${PCT}" >> "$GITHUB_OUTPUT"
+      - name: Comentar cobertura no PR
+        if: failure() && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        uses: actions/github-script@v7
+        env:
+          PCT: ${{ steps.cobertura.outputs.pct }}
+        with:
+          script: |
+            const pct = process.env.PCT || 'n/a';
+            const marker = '<!-- cobertura-check -->';
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const body = pct === 'n/a'
+              ? `${marker}\n## ❌ Os testes falharam antes de gerar a cobertura\n\nO check \`CI · Testes\` falhou, mas o relatório do JaCoCo não foi gerado (erro de compilação ou falha em teste).\n\n**O que fazer:** abra o [log do job](${runUrl}), corrija a falha e rode \`./mvnw test\` localmente antes de enviar.\n\n_O merge fica bloqueado enquanto este check estiver vermelho._`
+              : `${marker}\n## ❌ Cobertura de testes abaixo do mínimo\n\nA cobertura ficou em **${pct}%**, abaixo do mínimo de **80%** exigido pelo \`jacoco:check\`.\n\n**Para liberar o merge:**\n1. Rode \`./mvnw test\` localmente.\n2. Abra \`target/site/jacoco/index.html\` e cubra as classes com menor cobertura.\n3. Envie os testes até o check \`CI · Testes\` ficar verde.\n\n**O que entra no cálculo:** o código de produção do serviço (o \`shared-kernel\`, DTOs, entidades de persistência, config e exceptions ficam de fora).\n\n[Ver relatório e logs do run](${runUrl})`;
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner, repo: context.repo.repo, issue_number: context.issue.number, per_page: 100
+            });
+            const previous = comments.find(c => c.body.includes(marker));
+            if (previous) {
+              await github.rest.issues.updateComment({ owner: context.repo.owner, repo: context.repo.repo, comment_id: previous.id, body });
+            } else {
+              await github.rest.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number: context.issue.number, body });
+            }
+      - name: Resumo da falha
+        if: failure()
+        run: |
+          PCT="${{ steps.cobertura.outputs.pct }}"
+          if [ "$PCT" = "n/a" ]; then
+            echo "### ❌ Testes falharam (sem relatório de cobertura)" >> "$GITHUB_STEP_SUMMARY"
+            echo "Abra o log do job para ver o erro de compilação/teste." >> "$GITHUB_STEP_SUMMARY"
+            echo "::error::Testes falharam antes de gerar a cobertura. Veja o log do job."
+          else
+            echo "### ❌ Cobertura: ${PCT}% (mínimo 80%)" >> "$GITHUB_STEP_SUMMARY"
+            echo "Veja o comentário no PR para saber o que fazer." >> "$GITHUB_STEP_SUMMARY"
+            echo "::error::Cobertura ${PCT}% abaixo do mínimo de 80%. O PR foi comentado com as instruções."
+          fi
+      - name: Publicar relatório de cobertura
+        if: failure() && hashFiles('target/site/jacoco/index.html') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report
+          path: target/site/jacoco
+          retention-days: 7
       - name: SonarQube Cloud
         if: env.SONAR_TOKEN != ''
         env:
