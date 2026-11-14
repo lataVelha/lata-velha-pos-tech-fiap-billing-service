@@ -25,6 +25,9 @@
 		<sonar.projectKey>Lata-Velha-Billing-Service</sonar.projectKey>
 		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
 		<sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+		<!-- Os workflows do GitHub Actions não fazem parte do escopo da análise:
+		     evita o Quality Gate vermelho por S7637 (actions sem SHA). -->
+		<sonar.exclusions>.github/**</sonar.exclusions>
 		<sonar.coverage.exclusions>
 			**/dtos/**,
 			**/persistence/**/*Entity.java,
