@@ -1,8 +1,6 @@
 package br.com.lata.velha.billing.infrastructure.config;
 
 import br.com.lata.velha.billing.application.event_handlers.DiagnosticoFinalizadoEventHandler;
-import br.com.lata.velha.billing.application.event_handlers.OrcamentoAprovadoEventHandler;
-import br.com.lata.velha.billing.application.event_handlers.OrcamentoReprovadoEventHandler;
 import br.com.lata.velha.billing.application.event_handlers.OSEndedEventHandler;
 import br.com.lata.velha.billing.application.use_cases.AprovarOrcamentoUseCase;
 import br.com.lata.velha.billing.application.use_cases.CriarPagamentoUseCase;
@@ -54,13 +52,15 @@ public class BillingEventosBeansConfig {
     }
 
     @Bean
-    public AprovarOrcamentoUseCase aprovarOrcamentoUseCase(OrcamentoRepository orcamentoRepository) {
-        return new AprovarOrcamentoUseCase(orcamentoRepository);
+    public AprovarOrcamentoUseCase aprovarOrcamentoUseCase(OrcamentoRepository orcamentoRepository,
+                                                            EventPublisher eventPublisher) {
+        return new AprovarOrcamentoUseCase(orcamentoRepository, eventPublisher);
     }
 
     @Bean
-    public ReprovarOrcamentoUseCase reprovarOrcamentoUseCase(OrcamentoRepository orcamentoRepository) {
-        return new ReprovarOrcamentoUseCase(orcamentoRepository);
+    public ReprovarOrcamentoUseCase reprovarOrcamentoUseCase(OrcamentoRepository orcamentoRepository,
+                                                              EventPublisher eventPublisher) {
+        return new ReprovarOrcamentoUseCase(orcamentoRepository, eventPublisher);
     }
 
     @Bean
@@ -79,15 +79,5 @@ public class BillingEventosBeansConfig {
     @Bean
     public OSEndedEventHandler osEndedEventHandler(EmitirCobrancaUseCase useCase) {
         return new OSEndedEventHandler(useCase);
-    }
-
-    @Bean
-    public OrcamentoAprovadoEventHandler orcamentoAprovadoEventHandler(AprovarOrcamentoUseCase useCase) {
-        return new OrcamentoAprovadoEventHandler(useCase);
-    }
-
-    @Bean
-    public OrcamentoReprovadoEventHandler orcamentoReprovadoEventHandler(ReprovarOrcamentoUseCase useCase) {
-        return new OrcamentoReprovadoEventHandler(useCase);
     }
 }
