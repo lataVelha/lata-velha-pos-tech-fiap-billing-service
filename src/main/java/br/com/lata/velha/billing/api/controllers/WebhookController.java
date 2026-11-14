@@ -14,9 +14,10 @@ import org.springframework.web.bind.annotation.*;
 
 /**
  * Recebe as notificações (Webhooks) do Mercado Pago. Respondemos 200 para tudo
- * que não interessa (outros tópicos, ids inválidos) para o Mercado Pago não
- * ficar reenviando; falhas transitórias (ex.: API do Mercado Pago fora) sobem
- * como 5xx pelo GlobalExceptionHandler e o Mercado Pago tenta de novo.
+ * que não interessa (outros tópicos) para o Mercado Pago não ficar reenviando;
+ * data.id inválido responde 400 (erro permanente, também sem retry). Falhas
+ * transitórias (ex.: API do Mercado Pago fora) sobem como 5xx pelo
+ * GlobalExceptionHandler e o Mercado Pago tenta de novo.
  */
 @RestController
 @RequestMapping("/pagamentos/webhook")
@@ -44,15 +45,18 @@ public class WebhookController {
         var type = typeParam != null ? typeParam : body != null ? body.type() : null;
 
         if (!signatureValidator.valido(xSignature, xRequestId, dataId)) {
-            // ts/v1 não são segredo (o HMAC não revela a chave) — logados pra dar pra
-            // conferir a assinatura offline quando a validação falha.
-            logger.warn("Webhook com assinatura inválida - dataId={}, requestId={}, xSignature={}, query={}",
-                    dataId, xRequestId, xSignature, request.getQueryString());
+            // Não logamos os valores crus (vêm do cliente e poderiam injetar
+            // CR/LF no log). A presença já permite diagnosticar; para conferir
+            // a assinatura, use o request-id no painel do Mercado Pago.
+            logger.warn("Webhook com assinatura inválida - dataIdPresente={}, requestIdPresente={}, "
+                            + "signaturePresente={}, queryPresente={}",
+                    dataId != null, xRequestId != null, xSignature != null, request.getQueryString() != null);
             return ResponseEntity.status(401).build();
         }
 
         if (!"payment".equals(type)) {
-            logger.info("Webhook ignorado (tópico não tratado) - type={}, dataId={}", type, dataId);
+            logger.info("Webhook ignorado (tópico não tratado) - typePresente={}, dataIdPresente={}",
+                    type != null, dataId != null);
             return ResponseEntity.ok().build();
         }
 
@@ -60,8 +64,8 @@ public class WebhookController {
         try {
             paymentId = Long.valueOf(dataId);
         } catch (NumberFormatException e) {
-            logger.warn("Webhook com data.id inválido, ignorando - dataId={}", dataId);
-            return ResponseEntity.ok().build();
+            logger.warn("Webhook com data.id inválido - dataIdPresente={}", dataId != null);
+            return ResponseEntity.badRequest().build();
         }
 
         processarNotificacao.execute(paymentId);

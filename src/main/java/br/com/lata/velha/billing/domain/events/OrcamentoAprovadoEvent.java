@@ -14,7 +14,7 @@ public final class OrcamentoAprovadoEvent extends AbstractDomainEvent {
     public OrcamentoAprovadoEvent(Long osId, BigDecimal valorTotal, List<Item> itens) {
         this.osId = osId;
         this.valorTotal = valorTotal;
-        this.itens = itens == null ? List.of() : List.copyOf(itens);
+        this.itens = List.copyOf(itens);
     }
 
     @Override
