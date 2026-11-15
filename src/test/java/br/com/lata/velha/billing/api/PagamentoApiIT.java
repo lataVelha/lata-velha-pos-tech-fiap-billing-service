@@ -30,7 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class PagamentoApiIT {
 
-    private static final String SECRET = "deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef";
+    private static final String SECRET = "segredo-de-teste";
 
     @Autowired MockMvc mvc;
     @Autowired ObjectMapper mapper;
@@ -57,7 +57,7 @@ class PagamentoApiIT {
 
     private static String assinatura(String dataId, String requestId, String ts) throws Exception {
         var mac = Mac.getInstance("HmacSHA256");
-        mac.init(new SecretKeySpec(HexFormat.of().parseHex(SECRET), "HmacSHA256"));
+        mac.init(new SecretKeySpec(SECRET.getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
         var manifesto = "id:" + dataId + ";request-id:" + requestId + ";ts:" + ts + ";";
         return "ts=" + ts + ",v1=" + HexFormat.of().formatHex(mac.doFinal(manifesto.getBytes(StandardCharsets.UTF_8)));
     }
