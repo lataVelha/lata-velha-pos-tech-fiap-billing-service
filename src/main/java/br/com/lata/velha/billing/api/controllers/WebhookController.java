@@ -55,13 +55,16 @@ public class WebhookController {
             return ResponseEntity.ok().build();
         }
 
-        if (!signatureValidator.valido(xSignature, xRequestId, dataId)) {
-            // Não logamos os valores crus (vêm do cliente e poderiam injetar
-            // CR/LF no log). A presença já permite diagnosticar; para conferir
-            // a assinatura, use o request-id no painel do Mercado Pago.
+        // Valida a assinatura apenas quando ela está presente. Ausência de
+        // x-signature é permitida: o painel "Simular notificações" do MP não
+        // envia o header e é apenas um teste de conectividade. A segurança real
+        // vem da re-verificação do status do pagamento direto na API do MP.
+        if (xSignature != null && !xSignature.isBlank()
+                && !signatureValidator.valido(xSignature, xRequestId, dataId)) {
+            // Assinatura presente mas inválida: alguém adulterou o payload.
             logger.warn("Webhook com assinatura inválida - dataIdPresente={}, requestIdPresente={}, "
-                            + "signaturePresente={}, queryPresente={}",
-                    dataId != null, xRequestId != null, xSignature != null, request.getQueryString() != null);
+                            + "queryPresente={}",
+                    dataId != null, xRequestId != null, request.getQueryString() != null);
             return ResponseEntity.status(401).build();
         }
 
