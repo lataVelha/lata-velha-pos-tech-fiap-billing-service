@@ -4,6 +4,7 @@ import br.com.lata.velha.billing.api.dtos.CriarPagamentoRequest;
 import br.com.lata.velha.billing.api.dtos.PagamentoResponse;
 import br.com.lata.velha.billing.application.use_cases.BuscarPagamentoUseCase;
 import br.com.lata.velha.billing.application.use_cases.CriarPagamentoUseCase;
+import br.com.lata.velha.shared.infrastructure.observability.SpanAttributes;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -27,8 +28,11 @@ public class PagamentoController {
     @PostMapping
     @Operation(summary = "Cria (ou recupera) o pagamento de uma OS e devolve a URL do checkout do Mercado Pago")
     public ResponseEntity<PagamentoResponse> criar(@Valid @RequestBody CriarPagamentoRequest request) {
+        SpanAttributes.set("ordem_servico.id", request.ordemServicoId());
         var resultado = criarPagamento.execute(request.ordemServicoId(), request.valor(), request.descricao(), request.emailPagador());
         var body = PagamentoResponse.from(resultado.pagamento());
+        SpanAttributes.set("pagamento.id", body.id());
+        SpanAttributes.set("pagamento.status", body.status());
         if (!resultado.criado())
             return ResponseEntity.ok(body);
         return ResponseEntity.created(URI.create("/pagamentos/" + body.id())).body(body);

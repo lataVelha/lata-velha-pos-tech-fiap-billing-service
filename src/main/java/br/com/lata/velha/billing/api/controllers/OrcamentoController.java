@@ -2,6 +2,7 @@ package br.com.lata.velha.billing.api.controllers;
 
 import br.com.lata.velha.billing.application.use_cases.AprovarOrcamentoUseCase;
 import br.com.lata.velha.billing.application.use_cases.ReprovarOrcamentoUseCase;
+import br.com.lata.velha.shared.infrastructure.observability.SpanAttributes;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ public class OrcamentoController {
     @PostMapping("/{ordemServicoId}/aprovar")
     @Operation(summary = "Aprovação do orçamento pelo cliente")
     public ResponseEntity<Void> aprovar(@PathVariable Long ordemServicoId) {
+        SpanAttributes.set("ordem_servico.id", ordemServicoId);
         aprovarOrcamento.execute(ordemServicoId);
         return ResponseEntity.noContent().build();
     }
@@ -30,6 +32,7 @@ public class OrcamentoController {
     @PostMapping("/{ordemServicoId}/reprovar")
     @Operation(summary = "Reprovação do orçamento pelo cliente")
     public ResponseEntity<Void> reprovar(@PathVariable Long ordemServicoId) {
+        SpanAttributes.set("ordem_servico.id", ordemServicoId);
         reprovarOrcamento.execute(ordemServicoId);
         return ResponseEntity.noContent().build();
     }
