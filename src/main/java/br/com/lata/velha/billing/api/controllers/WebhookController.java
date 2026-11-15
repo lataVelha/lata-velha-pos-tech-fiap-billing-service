@@ -2,7 +2,9 @@ package br.com.lata.velha.billing.api.controllers;
 
 import br.com.lata.velha.billing.api.dtos.NotificacaoMercadoPagoRequest;
 import br.com.lata.velha.billing.application.use_cases.ProcessarNotificacaoUseCase;
+import br.com.lata.velha.billing.domain.exceptions.IntegracaoPagamentoException;
 import br.com.lata.velha.billing.infrastructure.mercadopago.WebhookSignatureValidator;
+import org.springframework.web.client.HttpClientErrorException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -68,7 +70,20 @@ public class WebhookController {
             return ResponseEntity.badRequest().build();
         }
 
-        processarNotificacao.execute(paymentId);
+        try {
+            processarNotificacao.execute(paymentId);
+        } catch (IntegracaoPagamentoException e) {
+            if (e.getCause() instanceof HttpClientErrorException hcee) {
+                // 4xx do Mercado Pago (payment inexistente, credencial inválida): erro
+                // permanente — não adianta retentar, o MP não precisa de 5xx aqui.
+                logger.warn("Erro de cliente ao consultar payment - paymentId={}: {}",
+                        paymentId, hcee.getStatusCode());
+                return ResponseEntity.ok().build();
+            }
+            // 5xx ou falha de conexão: transitório — re-lança para o GlobalExceptionHandler
+            // devolver 502 e o Mercado Pago retentar mais tarde.
+            throw e;
+        }
         return ResponseEntity.ok().build();
     }
 }
