@@ -2,7 +2,9 @@ package br.com.lata.velha.billing.api.controllers;
 
 import br.com.lata.velha.billing.api.dtos.NotificacaoMercadoPagoRequest;
 import br.com.lata.velha.billing.application.use_cases.ProcessarNotificacaoUseCase;
+import br.com.lata.velha.billing.domain.exceptions.IntegracaoPagamentoException;
 import br.com.lata.velha.billing.infrastructure.mercadopago.WebhookSignatureValidator;
+import org.springframework.web.client.HttpClientErrorException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -44,20 +46,26 @@ public class WebhookController {
                 : body != null && body.data() != null ? body.data().id() : null;
         var type = typeParam != null ? typeParam : body != null ? body.type() : null;
 
-        if (!signatureValidator.valido(xSignature, xRequestId, dataId)) {
-            // Não logamos os valores crus (vêm do cliente e poderiam injetar
-            // CR/LF no log). A presença já permite diagnosticar; para conferir
-            // a assinatura, use o request-id no painel do Mercado Pago.
-            logger.warn("Webhook com assinatura inválida - dataIdPresente={}, requestIdPresente={}, "
-                            + "signaturePresente={}, queryPresente={}",
-                    dataId != null, xRequestId != null, xSignature != null, request.getQueryString() != null);
-            return ResponseEntity.status(401).build();
-        }
-
+        // Checamos o tipo antes da assinatura: eventos que nao sao "payment" nao
+        // precisam de processamento — retornamos 200 logo (inclusive para o teste
+        // do painel do MP, que envia "mp-connect" sem x-signature).
         if (!"payment".equals(type)) {
             logger.info("Webhook ignorado (tópico não tratado) - typePresente={}, dataIdPresente={}",
                     type != null, dataId != null);
             return ResponseEntity.ok().build();
+        }
+
+        // Valida a assinatura apenas quando ela está presente. Ausência de
+        // x-signature é permitida: o painel "Simular notificações" do MP não
+        // envia o header e é apenas um teste de conectividade. A segurança real
+        // vem da re-verificação do status do pagamento direto na API do MP.
+        if (xSignature != null && !xSignature.isBlank()
+                && !signatureValidator.valido(xSignature, xRequestId, dataId)) {
+            // Assinatura presente mas inválida: alguém adulterou o payload.
+            logger.warn("Webhook com assinatura inválida - dataIdPresente={}, requestIdPresente={}, "
+                            + "queryPresente={}",
+                    dataId != null, xRequestId != null, request.getQueryString() != null);
+            return ResponseEntity.status(401).build();
         }
 
         Long paymentId;
@@ -68,7 +76,20 @@ public class WebhookController {
             return ResponseEntity.badRequest().build();
         }
 
-        processarNotificacao.execute(paymentId);
+        try {
+            processarNotificacao.execute(paymentId);
+        } catch (IntegracaoPagamentoException e) {
+            if (e.getCause() instanceof HttpClientErrorException hcee) {
+                // 4xx do Mercado Pago (payment inexistente, credencial inválida): erro
+                // permanente — não adianta retentar, o MP não precisa de 5xx aqui.
+                logger.warn("Erro de cliente ao consultar payment - paymentId={}: {}",
+                        paymentId, hcee.getStatusCode());
+                return ResponseEntity.ok().build();
+            }
+            // 5xx ou falha de conexão: transitório — re-lança para o GlobalExceptionHandler
+            // devolver 502 e o Mercado Pago retentar mais tarde.
+            throw e;
+        }
         return ResponseEntity.ok().build();
     }
 }
