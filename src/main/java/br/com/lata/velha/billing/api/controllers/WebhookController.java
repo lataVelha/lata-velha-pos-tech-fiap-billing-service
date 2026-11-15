@@ -46,6 +46,15 @@ public class WebhookController {
                 : body != null && body.data() != null ? body.data().id() : null;
         var type = typeParam != null ? typeParam : body != null ? body.type() : null;
 
+        // Checamos o tipo antes da assinatura: eventos que nao sao "payment" nao
+        // precisam de processamento — retornamos 200 logo (inclusive para o teste
+        // do painel do MP, que envia "mp-connect" sem x-signature).
+        if (!"payment".equals(type)) {
+            logger.info("Webhook ignorado (tópico não tratado) - typePresente={}, dataIdPresente={}",
+                    type != null, dataId != null);
+            return ResponseEntity.ok().build();
+        }
+
         if (!signatureValidator.valido(xSignature, xRequestId, dataId)) {
             // Não logamos os valores crus (vêm do cliente e poderiam injetar
             // CR/LF no log). A presença já permite diagnosticar; para conferir
@@ -54,12 +63,6 @@ public class WebhookController {
                             + "signaturePresente={}, queryPresente={}",
                     dataId != null, xRequestId != null, xSignature != null, request.getQueryString() != null);
             return ResponseEntity.status(401).build();
-        }
-
-        if (!"payment".equals(type)) {
-            logger.info("Webhook ignorado (tópico não tratado) - typePresente={}, dataIdPresente={}",
-                    type != null, dataId != null);
-            return ResponseEntity.ok().build();
         }
 
         Long paymentId;
