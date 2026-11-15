@@ -27,7 +27,7 @@ mercadopago:
   base-url: https://api.mercadopago.test
   access-token: TEST-token
   notification-url: https://api.lata-velha.test/pagamentos/webhook
-  webhook-secret: "deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef"
+  webhook-secret: segredo-de-teste
   connect-timeout: 1s
   read-timeout: 1s
   back-urls:
