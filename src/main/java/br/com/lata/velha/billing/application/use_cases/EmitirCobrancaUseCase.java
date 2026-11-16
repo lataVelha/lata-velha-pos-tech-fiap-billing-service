@@ -66,7 +66,8 @@ public class EmitirCobrancaUseCase {
                     new TimelineStep("CONCLUIDO", "Diagnóstico concluído", "Problemas identificados", 1),
                     new TimelineStep("CONCLUIDO", "Orçamento aprovado", "Serviços autorizados", 2),
                     new TimelineStep("CONCLUIDO", "Execução concluída", "Serviços realizados", 3),
-                    new TimelineStep("ATUAL", "Pagamento pendente", "Realize o pagamento para retirar o veículo", 4)
+                    new TimelineStep("ATUAL", "Aguardando Pagamento", "Realize o pagamento para retirar o veículo", 4),
+                    new TimelineStep("PENDENTE", "Pagamento Confirmado", "Aguardando confirmação do pagamento", 5)
             );
 
             var ctx = new Context();
