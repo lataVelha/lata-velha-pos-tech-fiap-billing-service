@@ -66,8 +66,10 @@ public class BillingEventosBeansConfig {
     @Bean
     public EmitirCobrancaUseCase emitirCobrancaUseCase(OrcamentoRepository orcamentoRepository,
                                                         CriarPagamentoUseCase criarPagamentoUseCase,
-                                                        EventPublisher eventPublisher) {
-        return new EmitirCobrancaUseCase(orcamentoRepository, criarPagamentoUseCase, eventPublisher);
+                                                        EventPublisher eventPublisher,
+                                                        JavaMailSender mailSender,
+                                                        TemplateEngine templateEngine) {
+        return new EmitirCobrancaUseCase(orcamentoRepository, criarPagamentoUseCase, eventPublisher, mailSender, templateEngine, emailRemetente);
     }
 
     @Bean
