@@ -51,7 +51,7 @@ public class ReceberDiagnosticoFinalizadoUseCase {
         var valorTotal = calcularTotal(event);
         var itens = extrairItens(event);
         var orcamento = orcamentoRepository.salvar(
-                Orcamento.create(event.getOsId(), valorTotal, null, itens));
+                Orcamento.create(event.getOsId(), valorTotal, event.getEmailProprietario(), itens));
 
         logger.info("Orçamento criado - osId={}, orcamentoId={}, valorTotal={}, itens={}",
                 event.getOsId(), orcamento.getId(), valorTotal, itens.size());

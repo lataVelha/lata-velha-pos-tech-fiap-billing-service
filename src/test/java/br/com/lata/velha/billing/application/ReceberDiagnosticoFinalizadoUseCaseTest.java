@@ -52,7 +52,7 @@ class ReceberDiagnosticoFinalizadoUseCaseTest {
         var existente = Orcamento.create(10L, BigDecimal.TEN, "cliente@teste.com", List.of());
         when(repository.buscarPorOrdemServicoId(10L)).thenReturn(Optional.of(existente));
 
-        useCase.execute(new DiagnosticoFinalizadoEvent(10L, List.of()));
+        useCase.execute(new DiagnosticoFinalizadoEvent(10L, List.of(), null));
 
         verify(repository, never()).salvar(any());
         verifyNoInteractions(inventoryGateway, mailSender, templateEngine);
@@ -62,7 +62,7 @@ class ReceberDiagnosticoFinalizadoUseCaseTest {
     void criaOrcamentoSemItens() {
         when(repository.buscarPorOrdemServicoId(11L)).thenReturn(Optional.empty());
 
-        useCase.execute(new DiagnosticoFinalizadoEvent(11L, List.of()));
+        useCase.execute(new DiagnosticoFinalizadoEvent(11L, List.of(), null));
 
         var captor = ArgumentCaptor.forClass(Orcamento.class);
         verify(repository).salvar(captor.capture());
@@ -80,7 +80,7 @@ class ReceberDiagnosticoFinalizadoUseCaseTest {
                 new ItemDiagnostico(101L, 2L, null,
                         List.of(new ItemPeca("8", 3), new ItemPeca("9", 1))),
                 new ItemDiagnostico(102L, 3L, new BigDecimal("50.00"), List.of())
-        ));
+        ), null);
         when(repository.buscarPorOrdemServicoId(12L)).thenReturn(Optional.empty());
         when(inventoryGateway.buscarValorPeca("7")).thenReturn(Optional.of(new BigDecimal("10.00")));
         when(inventoryGateway.buscarValorPeca("8")).thenReturn(Optional.empty());
@@ -109,7 +109,7 @@ class ReceberDiagnosticoFinalizadoUseCaseTest {
         when(templateEngine.process(eq("os-notificacao"), any(Context.class))).thenReturn("<html>orcamento</html>");
         when(mailSender.createMimeMessage()).thenReturn(new MimeMessage(Session.getInstance(new Properties())));
 
-        useCase.execute(new DiagnosticoFinalizadoEvent(13L, List.of()));
+        useCase.execute(new DiagnosticoFinalizadoEvent(13L, List.of(), "cliente@teste.com"));
 
         verify(templateEngine).process(eq("os-notificacao"), any(Context.class));
         verify(mailSender).createMimeMessage();
@@ -122,7 +122,7 @@ class ReceberDiagnosticoFinalizadoUseCaseTest {
         when(repository.salvar(any())).thenAnswer(invocation -> Orcamento.create(
                 14L, BigDecimal.TEN, "   ", List.of()));
 
-        useCase.execute(new DiagnosticoFinalizadoEvent(14L, List.of()));
+        useCase.execute(new DiagnosticoFinalizadoEvent(14L, List.of(), null));
 
         verifyNoInteractions(templateEngine, mailSender);
     }
@@ -134,7 +134,7 @@ class ReceberDiagnosticoFinalizadoUseCaseTest {
                 15L, BigDecimal.TEN, "cliente@teste.com", List.of()));
         when(mailSender.createMimeMessage()).thenThrow(new IllegalStateException("SMTP indisponível"));
 
-        assertThatCode(() -> useCase.execute(new DiagnosticoFinalizadoEvent(15L, List.of())))
+        assertThatCode(() -> useCase.execute(new DiagnosticoFinalizadoEvent(15L, List.of(), null)))
                 .doesNotThrowAnyException();
     }
 }
