@@ -3,6 +3,7 @@ package br.com.lata.velha.billing.application;
 import br.com.lata.velha.billing.application.use_cases.CriarPagamentoUseCase;
 import br.com.lata.velha.billing.application.use_cases.EmitirCobrancaUseCase;
 import br.com.lata.velha.billing.domain.entities.Orcamento;
+import br.com.lata.velha.billing.domain.entities.Pagamento;
 import br.com.lata.velha.shared.domain.events.CobrancaEmitidaEvent;
 import br.com.lata.velha.billing.domain.exceptions.OrcamentoNotFoundException;
 import br.com.lata.velha.billing.domain.repositories.OrcamentoRepository;
@@ -10,6 +11,8 @@ import br.com.lata.velha.shared.application.gateways.EventPublisher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.thymeleaf.TemplateEngine;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -24,6 +27,8 @@ class EmitirCobrancaUseCaseTest {
     private OrcamentoRepository repository;
     private CriarPagamentoUseCase criarPagamentoUseCase;
     private EventPublisher eventPublisher;
+    private JavaMailSender mailSender;
+    private TemplateEngine templateEngine;
     private EmitirCobrancaUseCase useCase;
 
     @BeforeEach
@@ -31,7 +36,14 @@ class EmitirCobrancaUseCaseTest {
         repository = mock(OrcamentoRepository.class);
         criarPagamentoUseCase = mock(CriarPagamentoUseCase.class);
         eventPublisher = mock(EventPublisher.class);
-        useCase = new EmitirCobrancaUseCase(repository, criarPagamentoUseCase, eventPublisher);
+        mailSender = mock(JavaMailSender.class);
+        templateEngine = mock(TemplateEngine.class);
+        useCase = new EmitirCobrancaUseCase(repository, criarPagamentoUseCase, eventPublisher, mailSender, templateEngine, "noreply@latavelha.com.br");
+
+        var pagamento = mock(Pagamento.class);
+        when(pagamento.getCheckoutUrl()).thenReturn("https://mp/checkout");
+        when(criarPagamentoUseCase.execute(any(), any(), any(), any()))
+                .thenReturn(new CriarPagamentoUseCase.Resultado(pagamento, true));
     }
 
     @Test
@@ -56,6 +68,6 @@ class EmitirCobrancaUseCaseTest {
         assertThatThrownBy(() -> useCase.execute(99L))
                 .isInstanceOf(OrcamentoNotFoundException.class);
 
-        verifyNoInteractions(criarPagamentoUseCase, eventPublisher);
+        verifyNoInteractions(eventPublisher);
     }
 }

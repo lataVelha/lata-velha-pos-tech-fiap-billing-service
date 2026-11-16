@@ -470,6 +470,35 @@
                 </table>
 
                 <!-- Timeline dinâmica -->
+                <!-- Botão de pagamento (opcional) -->
+                <table
+                  th:if="${checkoutUrl != null}"
+                  width="100%"
+                  cellpadding="0"
+                  cellspacing="0"
+                  style="margin: 25px 0"
+                >
+                  <tr>
+                    <td align="center">
+                      <a
+                        th:href="${checkoutUrl}"
+                        style="
+                          display: inline-block;
+                          background-color: #009ee3;
+                          color: #ffffff;
+                          font-size: 18px;
+                          font-weight: bold;
+                          text-decoration: none;
+                          padding: 16px 40px;
+                          border-radius: 8px;
+                        "
+                      >
+                        💳 Pagar agora
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+
                 <p
                   style="
                     color: #1a1a2e;

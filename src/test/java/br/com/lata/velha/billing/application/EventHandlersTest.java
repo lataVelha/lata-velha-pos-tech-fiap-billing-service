@@ -20,7 +20,7 @@ class EventHandlersTest {
     void diagnosticoFinalizadoHandlerDelegaParaUseCase() {
         var useCase = mock(ReceberDiagnosticoFinalizadoUseCase.class);
         var handler = new DiagnosticoFinalizadoEventHandler(useCase);
-        var event = new DiagnosticoFinalizadoEvent(7L, List.of());
+        var event = new DiagnosticoFinalizadoEvent(7L, List.of(), null);
 
         assertThat(handler.eventType()).isEqualTo("DiagnosticoFinalizado");
         assertThat(handler.eventClass()).isEqualTo(DiagnosticoFinalizadoEvent.class);
