@@ -92,7 +92,8 @@ public class ReceberDiagnosticoFinalizadoUseCase {
                     new TimelineStep("CONCLUIDO", "Diagnóstico concluído", "Problemas identificados", 1),
                     new TimelineStep("ATUAL", "Aguardando aprovação", "Orçamento enviado para análise", 2),
                     new TimelineStep("PENDENTE", "Execução dos serviços", "Após aprovação do orçamento", 3),
-                    new TimelineStep("PENDENTE", "Pagamento", "Finalização da ordem de serviço", 4)
+                    new TimelineStep("PENDENTE", "Aguardando Pagamento", "Pagamento para liberar o veículo", 4),
+                    new TimelineStep("PENDENTE", "Pagamento Confirmado", "Confirmação do pagamento recebida", 5)
             );
 
             var ctx = new Context();
